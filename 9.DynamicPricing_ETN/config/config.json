@@ -1,0 +1,37 @@
+{
+    "TLU_MC": {
+        "dsn": "MC_ETN",
+        "user": "admin",
+        "pswd": "admin",
+        "db": "admin"
+    },
+    "TLU_FIK": {
+        "dsn": "FIK_SUBE_BAJA_ETN",
+        "user": "admin",
+        "pswd": "admin",
+        "db": "admin"
+    },
+    "TLU_DOTERS": {
+        "dsn": "Doters",
+        "user": "admin",
+        "pswd": "admin",
+        "db": "admin"
+    },
+    "DB2": {
+        "host": "172.31.24.18",
+        "puerto": 50000,
+        "base_datos": "ETNDB2",
+        "usuario": "bicitec",
+        "contraseña": "4br1L.20015"
+    },
+    "Ruta": {
+        "ORIG": ["MEXN", "TEPO"],
+        "DEST": ["GDLJ"]
+    },
+    "archivos_sql": {
+        "MC_SQL_File": "DP_Pred_MC_DataExtract.sql",
+        "FIK_SQL_File": "DP_Pred_FIK_DataExtract.sql",
+        "Doters_SQL_File": "DP_Pred_Doters_DataExtract.sql",
+        "DB2_SQL_File": "DP_Pred_DB2_DataExtract.sql"
+    }
+}
