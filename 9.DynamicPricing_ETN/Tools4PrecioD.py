@@ -6,8 +6,7 @@ Created on Thu Oct  2 13:15:38 2025
 """
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+
 
 def encontrar_precio_optimo(demanda_base, tarifa_base, elasticidad, rango_precios=(0.7, 1.5), pasos=100):
     """
@@ -69,35 +68,3 @@ def encontrar_precio_optimo(demanda_base, tarifa_base, elasticidad, rango_precio
         })
     }
 
-tarifa_base_ejemplo = 1163.79
-demanda_predicha_base= 22
-
-resultado_optimizacion = encontrar_precio_optimo(
-    demanda_base=demanda_predicha_base,
-    tarifa_base=tarifa_base_ejemplo,
-    elasticidad=-1.28 # El valor que obtuvimos en la Fase 2
-)
-
-precio_final = resultado_optimizacion['precio_optimo']
-ingreso_final = resultado_optimizacion['ingreso_maximo']
-
-
-# --- PASO E: MOSTRAR RESULTADOS Y GRÁFICO ---
-print(f"\nPara un viaje con una demanda base predicha de {demanda_predicha_base:.0f} boletos (a ${tarifa_base_ejemplo:.2f}):")
-print("\n--------------------------------------------------")
-print(f"  El precio óptimo recomendado es: ${precio_final:.2f}")
-print(f"  Con este precio, el ingreso esperado se maximiza a: ${ingreso_final:,.2f}")
-print("--------------------------------------------------")
-
-# Graficar
-df_simulacion = resultado_optimizacion['datos_simulacion']
-plt.figure(figsize=(12, 7))
-sns.set_style("whitegrid")
-sns.lineplot(data=df_simulacion, x='precio_probado', y='ingreso_esperado', linewidth=3)
-plt.axvline(x=precio_final, color='red', linestyle='--', label=f'Precio Óptimo (${precio_final:.2f})')
-plt.axhline(y=ingreso_final, color='red', linestyle='--')
-plt.title('Curva de Optimización de Ingresos', fontsize=18)
-plt.xlabel('Precio del Boleto ($)', fontsize=12)
-plt.ylabel('Ingreso Total Esperado ($)', fontsize=12)
-plt.legend()
-plt.show()
