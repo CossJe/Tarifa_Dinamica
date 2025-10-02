@@ -50,4 +50,4 @@ def MainElas(UltimaTar=1163.79):
     # Se retornan los resultados.
     return TBT, PrecioMaximo, PrecioSugerido, Elasticidad
 
-MainElas()
+#MainElas()
