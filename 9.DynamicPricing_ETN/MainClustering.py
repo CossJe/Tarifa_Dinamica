@@ -21,7 +21,8 @@ import Tools4Cluster as TC
 def MainCluster():
     df=TC.CompleteData4Cluster1()
     df1=TC.GetClustersMoreThanOne(df)
-    df2=TC.GetClusters4One(df)
+    n=max(df1['Cluster'])+1
+    df2=TC.GetClusters4One(df,n)
     
     df_final = pd.concat([df1, df2], ignore_index=True)
     cluster_profile = df_final.groupby('Cluster')[df_final.columns[1:]].mean().round(2)

@@ -429,31 +429,38 @@ def GetClustersMoreThanOne(df):
     # 10. Devolver el DataFrame filtrado y con clusters
     return dfMoreThanOne
 
-def GetClusters4One(df):
+def GetClusters4One(df, n):
     """
-    Filtra a los clientes con exactamente una compra y les aplica clustering (KMeans) 
-    para segmentarlos en grupos. Usa un escalado robusto para reducir el impacto de outliers.
+    Filtra a los clientes con exactamente una compra y les aplica clustering (KMeans),
+    escalando las variables con RobustScaler para reducir la influencia de outliers.
+    Finalmente, ajusta la numeración de los clusters sumando una constante `n`.
 
     Flujo de la función:
-    1. Selecciona clientes con una sola compra (`SBol_Vend == 1`).
-    2. Escala las variables numéricas con `RobustScaler`.
-    3. Evalúa diferentes valores de K (2 a 9) y selecciona el óptimo con el coeficiente de Silueta.
-    4. Entrena un modelo KMeans con el K óptimo.
-    5. Asigna los clusters al DataFrame filtrado.
-    6. Reasigna los clusters 0 → 7 y 1 → 8 (probablemente para unificar criterios con otros segmentos).
-    7. Devuelve el DataFrame con clientes de una sola compra y su cluster asignado.
+    1. Filtra clientes con `SBol_Vend == 1`.
+    2. Selecciona solo las variables numéricas (excluyendo EMAIL y anteriores).
+    3. Escala las variables con `RobustScaler`.
+    4. Evalúa diferentes valores de K (2 a 9) usando el coeficiente de Silueta 
+       para encontrar el número óptimo de clusters.
+    5. Entrena un modelo KMeans con el K óptimo.
+    6. Asigna los clusters al DataFrame filtrado.
+    7. Suma `n` al número de cada cluster (para mantener consistencia si se combina con otros grupos).
+    8. Devuelve el DataFrame final con los clusters asignados.
 
     Parámetros
     ----------
     df : pd.DataFrame
         DataFrame consolidado (ej. salida de CompleteData4Cluster1), 
         donde cada fila representa un cliente (EMAIL).
+    
+    n : int
+        Número entero que se suma a los valores de los clusters para 
+        desplazar su numeración (ej. evitar solapamientos con otros grupos).
 
     Returns
     -------
     pd.DataFrame
         Subconjunto de clientes con una sola compra y columna 'Cluster' 
-        que indica su grupo.
+        que indica su grupo, ajustado con el desplazamiento `n`.
     """
 
     # 1. Filtrar clientes con exactamente 1 boleto vendido
@@ -466,22 +473,22 @@ def GetClusters4One(df):
     X = dfOne[dfOne.columns[Col+1:]]
     
     # --- Escalado ---
-    # 4. Crear instancia de escalador robusto (menos sensible a outliers que Min-Max o Standard)
+    # 4. Crear instancia de escalador robusto (menos sensible a outliers)
     robust_scaler = RobustScaler()
     
-    # 5. Ajustar y transformar variables numéricas
+    # 5. Ajustar y transformar las variables numéricas
     X_escalado = robust_scaler.fit_transform(X)
     
-    # 6. Convertir el resultado en DataFrame con nombres originales
+    # 6. Convertir el resultado a DataFrame con nombres originales
     X_escalado = pd.DataFrame(X_escalado, columns=X.columns)
     # --- Fin del paso de escalado ---
     
     # --- Selección de K óptima ---
-    max_silhouette_score = -1   # valor inicial
-    optimal_k = 0               # mejor número de clusters encontrado
-    K_range = range(2, 10)      # rango de clusters a probar
+    max_silhouette_score = -1   # valor inicial del coeficiente de silueta
+    optimal_k = 0               # número óptimo de clusters
+    K_range = range(2, 10)      # valores de K a evaluar
     
-    # 7. Probar diferentes valores de K y seleccionar el mejor según silueta
+    # 7. Probar diferentes valores de K y seleccionar el mejor
     for k in K_range:
         kmeans_model = KMeans(n_clusters=k, n_init='auto', random_state=42)
         kmeans_model.fit(X_escalado)
@@ -489,7 +496,7 @@ def GetClusters4One(df):
         # Calcular score de silueta
         score = silhouette_score(X_escalado, kmeans_model.labels_)
         
-        # Actualizar el óptimo si mejora
+        # Guardar el mejor resultado
         if score > max_silhouette_score:
             max_silhouette_score = score
             optimal_k = k
@@ -498,20 +505,19 @@ def GetClusters4One(df):
     print(f"El número óptimo de clusters (K) es: {optimal_k}")
     
     # --- Entrenamiento del modelo final ---
-    # 8. Entrenar modelo KMeans con la K óptima
+    # 8. Entrenar KMeans con la K óptima encontrada
     modelo_entrenado = KMeans(n_clusters=optimal_k, n_init='auto', random_state=42)
     modelo_entrenado.fit(X_escalado)
     
-    # 9. Asignar cluster a cada cliente
+    # 9. Asignar clusters al DataFrame filtrado
     dfOne['Cluster'] = modelo_entrenado.labels_
     
-    # 10. Reasignar etiquetas de cluster:
-    #     - Cluster 0 pasa a ser 7
-    #     - Cluster 1 pasa a ser 8
-    # (Esto se hace probablemente para diferenciarlos de los clusters de clientes con más de una compra)
-    dfOne['Cluster'] = np.where(dfOne['Cluster'] == 0, 7, dfOne['Cluster'])
-    dfOne['Cluster'] = np.where(dfOne['Cluster'] == 1, 8, dfOne['Cluster'])
+    # 10. Ajustar numeración sumando la constante 'n'
+    # (para evitar solapamientos con otros conjuntos de clusters)
+    dfOne = dfOne.copy()
+    dfOne['Cluster'] = dfOne['Cluster'] + n
 
-    # 11. Devolver el DataFrame final
+    # 11. Devolver DataFrame con clusters ajustados
     return dfOne
+
 
