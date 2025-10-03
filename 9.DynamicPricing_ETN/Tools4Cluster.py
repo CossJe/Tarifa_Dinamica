@@ -156,7 +156,10 @@ def CompleteData4Cluster():
     """
 
     # Obtener los datos procesados de la función GetData
-    Df = GetData()
+    Df = GetData()    # Convertir columna de fecha a tipo datetime
+    Df['FECHA_OPERACION'] = pd.to_datetime(Df['FECHA_OPERACION'])
+    fecha_maxima = Df['FECHA_OPERACION'].max()
+    Df = Df[Df['FECHA_OPERACION'] < fecha_maxima].copy()
     Df.loc[(Df['PORCENT_PROMO'] > 0) & (Df['DESC_DESCUENTO'] == 'ADULTO'), 'DESC_DESCUENTO'] = 'PROMOCION ESPECIAL'
     Df.loc[(Df['PORCENT_PROMO'] == 0) & (Df['DESC_DESCUENTO'] == 'PROMOCION ESPECIAL'), 'DESC_DESCUENTO'] = 'ADULTO'
     # Crear un DataFrame vacío para consolidar información por correo
@@ -217,9 +220,6 @@ def CompleteData4Cluster():
 
     # --- Variables temporales: días entre compras ---
 
-    # Convertir columna de fecha a tipo datetime
-    Df['FECHA_OPERACION'] = pd.to_datetime(Df['FECHA_OPERACION'])
-
     # Ordenar por cliente y fecha
     Df_sorted = Df.sort_values(['EMAIL', 'FECHA_OPERACION'])
 
@@ -276,7 +276,9 @@ def CompleteData4Cluster1():
 
     # 1. Obtener los datos procesados desde una función externa
     Df = GetData()
-
+    Df['FECHA_OPERACION'] = pd.to_datetime(Df['FECHA_OPERACION'])
+    fecha_maxima = Df['FECHA_OPERACION'].max()
+    Df = Df[Df['FECHA_OPERACION'] < fecha_maxima].copy()
     # 2. Corrección de categorías:
     # Si un adulto tiene promoción > 0, renombrar su descuento como "PROMOCION ESPECIAL"
     Df.loc[(Df['PORCENT_PROMO'] > 0) & (Df['DESC_DESCUENTO'] == 'ADULTO'), 'DESC_DESCUENTO'] = 'PROMOCION ESPECIAL'
