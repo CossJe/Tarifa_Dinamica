@@ -55,5 +55,6 @@ def NuevaClasificacion():
     
     accuracy = accuracy_score(y_test, y_pred_baseline)
     print(f"Precisión (Accuracy) General: {accuracy:.4f}")
+    # guardado del modelo de prediccion
     xgb_model_baseline.save_model("modelo_xgboost_clientes.json")
 NuevaClasificacion()

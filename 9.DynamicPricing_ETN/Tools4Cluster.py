@@ -18,7 +18,7 @@ from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import RobustScaler
 from sklearn.preprocessing import MinMaxScaler
-
+import joblib
 
 from src.dynamic_pricing_data_loader import cargar_y_preparar_datos
 
@@ -424,6 +424,13 @@ def GetClustersMoreThanOne(df):
     # 8. Entrenar modelo KMeans con la K óptima encontrada
     modelo_entrenado = KMeans(n_clusters=optimal_k, n_init='auto', random_state=42)
     modelo_entrenado.fit(X_escalado)
+
+    nombre_archivo = "Kmeans4MoreThanOne.joblib"
+
+    # Guarda el modelo en el archivo
+    joblib.dump(modelo_entrenado, nombre_archivo)
+    
+    print(f"Modelo K-Means guardado exitosamente como: {nombre_archivo}")
     
     # 9. Asignar a cada cliente su cluster
     dfMoreThanOne['Cluster'] = modelo_entrenado.labels_
@@ -511,6 +518,12 @@ def GetClusters4One(df, n):
     modelo_entrenado = KMeans(n_clusters=optimal_k, n_init='auto', random_state=42)
     modelo_entrenado.fit(X_escalado)
     
+    nombre_archivo = "Kmeans4One.joblib"
+
+    # Guarda el modelo en el archivo
+    joblib.dump(modelo_entrenado, nombre_archivo)
+    
+    print(f"Modelo K-Means guardado exitosamente como: {nombre_archivo}")
     # 9. Asignar clusters al DataFrame filtrado
     dfOne['Cluster'] = modelo_entrenado.labels_
     

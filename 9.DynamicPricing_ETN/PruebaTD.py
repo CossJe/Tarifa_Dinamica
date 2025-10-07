@@ -13,7 +13,7 @@ import Tools4PrecioD as TP
 
 TBT, PrecioMaximo, PrecioSugerido, Elas= ME. MainElas()
 
-demanda_predicha_base= 22
+demanda_predicha_base= 1
 
 resultado_optimizacion = TP. encontrar_precio_optimo(
     demanda_base=demanda_predicha_base,
