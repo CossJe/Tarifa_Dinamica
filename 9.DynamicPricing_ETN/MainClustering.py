@@ -20,7 +20,7 @@ import Tools4Cluster as TC
 
 def MainCluster():
     df=TC.CompleteData4Cluster1()
-    df1=TC.GetClustersMoreThanOne(df)
+    df1=TC.GetClustersMoreThanOne(df,6)
     n=max(df1['Cluster'])+1
     df2=TC.GetClusters4One(df,n)
     

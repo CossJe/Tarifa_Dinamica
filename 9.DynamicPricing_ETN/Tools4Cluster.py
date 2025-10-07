@@ -350,7 +350,7 @@ def CompleteData4Cluster1():
     # 10. Devolver el DataFrame consolidado para análisis/clustering
     return df_correo
 
-def GetClustersMoreThanOne(df):
+def GetClustersMoreThanOne(df,optimal_k=0):
     """
     Filtra los clientes con más de una compra y les aplica clustering (KMeans) 
     para segmentarlos en grupos de comportamiento similares.
@@ -399,23 +399,24 @@ def GetClustersMoreThanOne(df):
     # --- Selección de K óptima ---
     # Inicializar variables para guardar el mejor valor de silueta y K
     max_silhouette_score = -1
-    optimal_k = 0
+    #optimal_k = 0
     
     # Rango de valores de K a evaluar
     K_range = range(2, 10)
     
-    # 7. Probar diferentes valores de K y elegir el que dé mejor coeficiente de silueta
-    for k in K_range:
-        kmeans_model = KMeans(n_clusters=k, n_init='auto', random_state=42)
-        kmeans_model.fit(X_escalado)
-        
-        # Calcular score de silueta
-        score = silhouette_score(X_escalado, kmeans_model.labels_)
-        
-        # Actualizar K óptimo si mejora
-        if score > max_silhouette_score:
-            max_silhouette_score = score
-            optimal_k = k
+    if optimal_k == 0: 
+        # 7. Probar diferentes valores de K y elegir el que dé mejor coeficiente de silueta
+        for k in K_range:
+            kmeans_model = KMeans(n_clusters=k, n_init='auto', random_state=42)
+            kmeans_model.fit(X_escalado)
+            
+            # Calcular score de silueta
+            score = silhouette_score(X_escalado, kmeans_model.labels_)
+            
+            # Actualizar K óptimo si mejora
+            if score > max_silhouette_score:
+                max_silhouette_score = score
+                optimal_k = k
     
     # Mostrar el número óptimo de clusters
     print(f"El número óptimo de clusters (K) es: {optimal_k}")
