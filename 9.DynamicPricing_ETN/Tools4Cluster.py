@@ -537,3 +537,38 @@ def GetClusters4One(df, n):
     return dfOne
 
 
+def GetCluster4AllData(df,optimal_k):
+    # 1. Ubicar la posición de la columna EMAIL (para separar variables de identificación)
+    Col = list(df.columns).index('EMAIL')
+    
+    #2. Tomar solo las variables numéricas (excluyendo EMAIL y columnas previas a ella)
+    X = df[df.columns[Col+1:]]
+    
+    # --- Escalado ---
+    # 3. Crear instancia del escalador Min-Max
+    minmax_scaler = MinMaxScaler()
+    
+    # 4. Ajustar y transformar las variables numéricas
+    X_escalado = minmax_scaler.fit_transform(X)
+    
+    # 5. Convertir el resultado a DataFrame con mismos nombres de columnas
+    X_escalado = pd.DataFrame(X_escalado, columns=X.columns)
+    
+    # --- Fin del escalado ---    
+    print(f"El número óptimo de clusters (K) es: {optimal_k}")
+    
+    # --- Entrenamiento del modelo final ---
+    # 8. Entrenar KMeans con la K óptima encontrada
+    modelo_entrenado = KMeans(n_clusters=optimal_k, n_init='auto', random_state=42)
+    modelo_entrenado.fit(X_escalado)
+    
+    nombre_archivo = "KmeansAllData.joblib"
+
+    # Guarda el modelo en el archivo
+    joblib.dump(modelo_entrenado, nombre_archivo)
+    
+    print(f"Modelo K-Means guardado exitosamente como: {nombre_archivo}")
+    # 9. Asignar clusters al DataFrame filtrado
+    df['Cluster'] = modelo_entrenado.labels_
+    
+    return df
