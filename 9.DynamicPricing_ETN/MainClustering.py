@@ -15,24 +15,10 @@ from sklearn.preprocessing import RobustScaler
 from sklearn.preprocessing import MinMaxScaler
 
 import Tools4Cluster as TC
+import Tools4ClasSupervisada as TCS
 
-
-
-def MainCluster(bandera):
-    df=TC.CompleteData4Cluster1()
-    if bandera:
-        df1=TC.GetClustersMoreThanOne(df,6)
-        n=max(df1['Cluster'])+1
-        df2=TC.GetClusters4One(df,n)
-        
-        df_final = pd.concat([df1, df2], ignore_index=True)
-    else:
-        df_final =  TC.GetCluster4AllData(df,6)
-        
-    cluster_profile = df_final.groupby('Cluster')[df_final.columns[1:]].mean().round(2)
-    with pd.ExcelWriter('ClusteringClientes.xlsx') as writer:
-        df_final.to_excel(writer, sheet_name='Clustering', index=False)
-        cluster_profile.to_excel(writer, sheet_name='Resumen', index=False)
     
-
-MainCluster(False)
+# Hace el clustering de todos los datos que salen del extractor
+TC.ClusteringData(False)
+# Hace el entrenamiento del algoritmo suoervisado 
+TCS.ClusteringSupervisado

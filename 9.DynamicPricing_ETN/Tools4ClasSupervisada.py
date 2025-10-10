@@ -20,7 +20,7 @@ def GetClusters():
         exit()
     return df
     
-def NuevaClasificacion():
+def ClusteringSupervisado():
     df= GetClusters()
     # 1. Limpieza y Definición de X y y
     X = df.drop(['EMAIL', 'Cluster'], axis=1) # Excluir EMAIL y ambas columnas de cluster
@@ -57,4 +57,3 @@ def NuevaClasificacion():
     print(f"Precisión (Accuracy) General: {accuracy:.4f}")
     # guardado del modelo de prediccion
     xgb_model_baseline.save_model("modelo_xgboost_clientes.json")
-NuevaClasificacion()

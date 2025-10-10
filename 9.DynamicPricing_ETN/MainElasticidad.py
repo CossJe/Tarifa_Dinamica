@@ -4,6 +4,7 @@ Created on Fri Sep 12 13:19:14 2025
 
 @author: Jesus Coss
 """
+import json
 
 import Tools4Elasticidad as Ts
 
@@ -47,7 +48,17 @@ def MainElas(UltimaTar=1163.79):
     # Se utilizan los coeficientes y las condiciones iniciales para sugerir precios.
     PrecioMaximo, PrecioSugerido = Ts.GetPrizes(Coef, CondIni, UltimaTar)
     
-    # Se retornan los resultados.
-    return TBT, PrecioMaximo, PrecioSugerido, Elasticidad
+    # Convertir a tipos nativos de Python
+    data = {
+        "TBT": int(TBT),
+        "PrecioMaximo": float(PrecioMaximo),
+        "PrecioSugerido": float(PrecioSugerido),
+        "Elasticidad": float(Elasticidad)
+    }
+    
+    with open("Resultados_Elasticidad.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+    
+    return 
 
-#MainElas()
+MainElas()

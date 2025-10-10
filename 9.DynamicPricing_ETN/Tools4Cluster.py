@@ -130,128 +130,6 @@ def GetData():
     # Devolver el DataFrame final procesado.
     return Df
 
-def CompleteData4Cluster():
-    """
-    Procesa y completa información agregada a nivel de EMAIL para clustering.
-
-    Flujo general
-    -------------
-    1. Obtiene el DataFrame base con `GetData()`.
-    2. Genera variables agregadas por cliente (EMAIL):
-       - Total de boletos vendidos (Bol_Vend).
-       - Promedio pagado (Prom_Pagado).
-       - % de promoción promedio (%_Promo).
-       - Promedio de horas de anticipación (Prom_Horas_Ant).
-    3. Calcula proporciones de tipos de descuento (DESC_DESCUENTO) y agrupa
-       categorías en DMS (discapacidad/menor/senectud) y ACADEMICOS (estudiante/profesor).
-    4. Calcula proporciones de métodos de pago (PAGO_METODO).
-    5. Calcula el promedio de días entre compras por cliente (Prom_Dias_Entre_Compra),
-       e identifica si fue la primera compra (Primer_Compra).
-    6. Devuelve un DataFrame enriquecido (df_correo) listo para clustering.
-
-    Devuelve
-    --------
-    pandas.DataFrame
-        DataFrame con las variables agregadas y enriquecidas a nivel EMAIL.
-    """
-
-    # Obtener los datos procesados de la función GetData
-    Df = GetData()    # Convertir columna de fecha a tipo datetime
-    Df['FECHA_OPERACION'] = pd.to_datetime(Df['FECHA_OPERACION'])
-    fecha_maxima = Df['FECHA_OPERACION'].max()
-    Df = Df[Df['FECHA_OPERACION'] < fecha_maxima].copy()
-    Df.loc[(Df['PORCENT_PROMO'] > 0) & (Df['DESC_DESCUENTO'] == 'ADULTO'), 'DESC_DESCUENTO'] = 'PROMOCION ESPECIAL'
-    Df.loc[(Df['PORCENT_PROMO'] == 0) & (Df['DESC_DESCUENTO'] == 'PROMOCION ESPECIAL'), 'DESC_DESCUENTO'] = 'ADULTO'
-    # Crear un DataFrame vacío para consolidar información por correo
-    df_correo = pd.DataFrame()
-
-    # Variable que servirá como clave de agrupación
-    atributo = 'EMAIL'
-
-    # Agregar variables básicas por cliente
-    df_correo['Bol_Vend'] = Df.groupby(atributo)['BOLETOS_VEND'].sum()
-    df_correo['Prom_Pagado'] = Df.groupby(atributo)['VENTA'].mean()
-    df_correo['%_Promo'] = Df.groupby(atributo)['PORCENT_PROMO'].mean()
-    df_correo['Prom_Horas_Ant'] = Df.groupby(atributo)['HORAS_ANTICIPACION'].mean()
-
-    # Tabla de proporciones por tipo de descuento
-    DESC_DESCUENTO = pd.crosstab(
-        index=Df[atributo],
-        columns=Df['DESC_DESCUENTO'],
-        normalize='index'
-    )
-
-    # Reiniciar índice para que EMAIL sea columna y no índice
-    DESC_DESCUENTO = DESC_DESCUENTO.reset_index()
-
-    # Unir proporciones de descuento con el DataFrame principal
-    df_correo = pd.merge(
-        df_correo,
-        DESC_DESCUENTO,
-        on='EMAIL',
-        how='left'
-    )
-
-    # --- Variables de métodos de pago ---
-
-    # Crear tabla de proporciones por método de pago
-    PAGO_METODO = pd.crosstab(
-        index=Df[atributo],
-        columns=Df['PAGO_METODO'],
-        normalize='index'
-    )
-
-    # Reiniciar índice para que EMAIL sea columna
-    PAGO_METODO = PAGO_METODO.reset_index()
-
-    # Asegurar tipo de dato string en la columna clave
-    PAGO_METODO[atributo] = PAGO_METODO[atributo].astype(str)
-
-    # Unir la información de métodos de pago al DataFrame principal
-    df_correo = pd.merge(
-        df_correo,
-        PAGO_METODO,
-        on=atributo,
-        how='left'
-    )
-
-    # Eliminar columna "EFECTIVO" ya que no se desea en el análisis
-    df_correo = df_correo.drop(columns='EFECTIVO')
-
-    # --- Variables temporales: días entre compras ---
-
-    # Ordenar por cliente y fecha
-    Df_sorted = Df.sort_values(['EMAIL', 'FECHA_OPERACION'])
-
-    # Calcular diferencia en días entre compras consecutivas
-    Df_sorted['DIF_DIAS'] = Df_sorted.groupby('EMAIL')['FECHA_OPERACION'].diff().dt.days
-
-    # Promediar las diferencias de días por cliente
-    PP = (
-        Df_sorted
-        .groupby('EMAIL')['DIF_DIAS']
-        .mean()
-        .reset_index(name='Prom_Dias_Entre_Compra')
-    )
-
-    # Crear variable binaria: 1 si es primera compra (sin historial), 0 en otro caso
-    df_correo['Primer_Compra'] = PP['Prom_Dias_Entre_Compra'].isna()
-    df_correo['Primer_Compra'] = df_correo['Primer_Compra'].astype(int)
-
-    # Reemplazar NaN por 0 en promedios de días
-    PP = PP.fillna(0)
-
-    # Unir los promedios de días al DataFrame principal
-    df_correo = df_correo.merge(
-        PP,
-        on='EMAIL',
-        how='left'
-    ).fillna({'Prom_Dias_Entre_Compra': 0})
-
-    df_correo.to_excel('PorCorreo.xlsx')
-    Df.to_excel('ventas.xlsx')
-    # Devolver el DataFrame completo
-    return df_correo
 
 def CompleteData4Cluster1():
     """
@@ -572,3 +450,19 @@ def GetCluster4AllData(df,optimal_k):
     df['Cluster'] = modelo_entrenado.labels_
     
     return df
+
+def ClusteringData(bandera):
+    df=CompleteData4Cluster1()
+    if bandera:
+        df1=GetClustersMoreThanOne(df,6)
+        n=max(df1['Cluster'])+1
+        df2=GetClusters4One(df,n)
+        
+        df_final = pd.concat([df1, df2], ignore_index=True)
+    else:
+        df_final =  GetCluster4AllData(df,6)
+        
+    cluster_profile = df_final.groupby('Cluster')[df_final.columns[1:]].mean().round(2)
+    with pd.ExcelWriter('ClusteringClientes.xlsx') as writer:
+        df_final.to_excel(writer, sheet_name='Clustering', index=False)
+        cluster_profile.to_excel(writer, sheet_name='Resumen', index=False)
