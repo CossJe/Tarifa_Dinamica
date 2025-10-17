@@ -87,23 +87,27 @@ def GetTodayData4Cluster(Frame):
     # Devolver el DataFrame final procesado.
     return Df
 
-def GetDescuento(Cluster):
+def GetDescuento(Cluster,Elas):
+    desc=Elas*5
     if Cluster== 0 or Cluster== 2:
-        return 0.02
+        # Los de mayor valor monetario
+        return -desc
     elif Cluster== 3 or Cluster== 5:
-        return -0.02
+        # Los más sensibles al precio o en riesgo de abandono
+        return desc
     elif Cluster== 1 or Cluster== 4:
+        # Viajeros frecuentes, no se obtendría un beneficio de aumentarles el precio
         return 0.0
     
 # En esta funcion se busca si el cliente ya está en la base de datos o no
-def GetCluster(Df,DB):
+def GetCluster(Df,DB,Elas):
     if Df['EMAIL'].isin(DB['EMAIL']).iloc[0]: 
-        print("En la lista")
+        #print("En la lista")
         Cluster=DB[DB['EMAIL']==Df['EMAIL'].iloc[0]]['Cluster'].iloc[0]
-        desc=GetDescuento(Cluster)
+        desc=GetDescuento(Cluster,Elas)
         return Cluster,desc
     else:
-        print("Fuera de la lista")
+        #print("Fuera de la lista")
         columnas_destino= DB.columns[1:-1]
         df_ = pd.DataFrame(
         0,                                # Valor a rellenar (cero)
@@ -133,5 +137,5 @@ def GetCluster(Df,DB):
         modelo_cargado.load_model("modelo_xgboost_clientes.json")
     
         Cluster = modelo_cargado.predict(df_)[0]
-        desc=GetDescuento(Cluster)
+        desc=GetDescuento(Cluster,Elas)
         return Cluster,desc

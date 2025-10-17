@@ -24,6 +24,8 @@ def Prepare_Data(df):
     #df=Get_Data()
     # Se filtra el DataFrame para incluir solo ventas mayores que cero.
     df = df[df['VENTA'] > 0]
+    df=df[df['BOLETOS_VEND']>0]
+    df=df.drop('BOLETOS_VEND',axis=1)
     df['FECHA_OPERACION'] = pd.to_datetime(df['FECHA_OPERACION'])
     fecha_maxima = df['FECHA_OPERACION'].max()
     df = df[df['FECHA_OPERACION'] < fecha_maxima].copy()
@@ -77,16 +79,16 @@ def Data4RedNeuronal(df_1):
 def GetFlag(datos):
 
     asimetria_pandas = datos.skew()
-    print(f"Coeficiente de Asimetría: {asimetria_pandas:.4f}")
+    #print(f"Coeficiente de Asimetría: {asimetria_pandas:.4f}")
     
     if asimetria_pandas > 1.0:
-        print("La asimetría es alta (> 1.0). La transformación logarítmica es altamente recomendable.")
+        #print("La asimetría es alta (> 1.0). La transformación logarítmica es altamente recomendable.")
         Bandera=True
     elif asimetria_pandas > 0.5:
-        print("La asimetría es moderada (> 0.5). La transformación logarítmica podría ser beneficiosa.")
+        #print("La asimetría es moderada (> 0.5). La transformación logarítmica podría ser beneficiosa.")
         Bandera=True
     else:
-        print("La asimetría es baja. Una transformación no es necesaria.")
+        #print("La asimetría es baja. Una transformación no es necesaria.")
         Bandera=False
         
     return Bandera
@@ -141,11 +143,6 @@ def TrainingNet(X_processed,Y_log,Bandera):
     
     input_feature_count = X_train.shape[1] 
     
-    print(f"\n--- Resumen de la División ---")
-    print(f"Número total de features (columnas) para la red neuronal: {input_feature_count}")
-    print(f"Tamaño de X_train (Entrenamiento): {X_train.shape}")
-    print(f"Tamaño de X_test (Prueba): {X_test.shape}")
-    print(f"Tamaño de Y_train_log (Objetivo de Entrenamiento): {Y_train_log.shape}")
     
     # --- 1. Definir el número de features de entrada ---
     # (Esto debe ser el número de columnas de tu X_train después del OHE y estandarización)
@@ -326,7 +323,7 @@ def GetValues(model,Fore,X_final,Bandera):
     # Calcular el MAE real
     mae_real = mean_absolute_error(Y_R_real, Y_pred_real)
     
-    print(f"\nEl Error Absoluto Medio (MAE) final es de: {mae_real:,.2f} [Moneda]")
+    #print(f"\nEl Error Absoluto Medio (MAE) final es de: {mae_real:,.2f} [Moneda]")
     return Y_pred_real
     
 def ProcessingNet(data):

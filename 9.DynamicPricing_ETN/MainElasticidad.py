@@ -8,7 +8,7 @@ import json
 
 import Tools4Elasticidad as Ts
 
-def MainElas(UltimaTar=1163.79):
+def MainElas():
     """
     Función principal para calcular la elasticidad de la demanda y sugerir precios.
 
@@ -46,7 +46,7 @@ def MainElas(UltimaTar=1163.79):
     Coef, Elasticidad = Ts.GetElasticity(Frame)
     
     # Se utilizan los coeficientes y las condiciones iniciales para sugerir precios.
-    PrecioMaximo, PrecioSugerido = Ts.GetPrizes(Coef, CondIni, UltimaTar)
+    PrecioMaximo, PrecioSugerido = Ts.GetPrizes(Coef, CondIni, TBT)
     
     # Convertir a tipos nativos de Python
     data = {
