@@ -101,6 +101,7 @@ def GetDescuento(Cluster,Elas):
     
 # En esta funcion se busca si el cliente ya está en la base de datos o no
 def GetCluster(Df,DB,Elas):
+    ruta_principal = os.getcwd()
     if Df['EMAIL'].isin(DB['EMAIL']).iloc[0]: 
         #print("En la lista")
         Cluster=DB[DB['EMAIL']==Df['EMAIL'].iloc[0]]['Cluster'].iloc[0]
@@ -132,9 +133,11 @@ def GetCluster(Df,DB,Elas):
         df_[df_dummies_desc.columns[0]]=df_dummies_desc[df_dummies_desc.columns[0]].iloc[0]
         df_[df_dummies_pago.columns[0]]=df_dummies_pago[df_dummies_pago.columns[0]].iloc[0]
     
+        config_path = os.path.join(ruta_principal, "Models", "modelo_xgboost_clientes.json")
+        
         modelo_cargado = XGBClassifier()
         # Cargar el modelo guardado
-        modelo_cargado.load_model("modelo_xgboost_clientes.json")
+        modelo_cargado.load_model(config_path)
     
         Cluster = modelo_cargado.predict(df_)[0]
         desc=GetDescuento(Cluster,Elas)
