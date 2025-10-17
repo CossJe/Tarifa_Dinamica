@@ -175,7 +175,7 @@ def TrainingNet(X_processed,Y_log,Bandera):
     history = model.fit(
         X_train, 
         Y_train_log,  # ¡Usamos la variable VENTA transformada con logaritmo!
-        epochs=10, 
+        epochs=2, 
         batch_size=32, 
         validation_split=0.2, # Usamos el 20% para validación interna
         verbose=1
@@ -329,13 +329,17 @@ def GetValues(model,Fore,X_final,Bandera):
     print(f"\nEl Error Absoluto Medio (MAE) final es de: {mae_real:,.2f} [Moneda]")
     return Y_pred_real
     
-def ProcessingNet(df):
+def ProcessingNet(data):
+    df=data[data.columns[1:]]
     Frame=df.copy()
     FrameN=Data4RedNeuronal(Frame.copy())
     Bandera = GetFlag(FrameN['VENTA'])
     X_processed, Y_log = GetTrainingForm(FrameN.copy(),Bandera)
     model= TrainingNet(X_processed,Y_log,Bandera)
-    df_today= PrepareData4Fore(Frame.copy())
+    df_= PrepareData4Fore(data.copy())
+    df_today=df_[df_.columns[1:]]
     Fore=DataForecasting(df_today,FrameN)
     X_final= GetPredictingForm(Fore, X_processed.columns)
-    GetValues(model,Fore,X_final,Bandera)
+    PrecioDin=GetValues(model,Fore,X_final,Bandera)
+    df_["PRECIO DINAMICO"]= PrecioDin
+    return df_

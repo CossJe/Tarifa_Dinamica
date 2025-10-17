@@ -22,7 +22,7 @@ def Get_Data():
     Frame = cargar_y_preparar_datos(config_path, ruta_principal)
 
     # Seleccionar solo las columnas relevantes para el análisis.
-    D4NN = Frame[["FECHA_CORRIDA", "HORA_SALIDA_CORRIDA", "CLASE_SERVICIO", 'IVA_TARIFA_BASE_TRAMO',
+    D4NN = Frame[['NOMBRE_PASAJERO',"FECHA_CORRIDA", "HORA_SALIDA_CORRIDA", "CLASE_SERVICIO", 'IVA_TARIFA_BASE_TRAMO',
     "PAX_SUBEN", "TARIFA_BASE_TRAMO",'FECHA_OPERACION', 'HORA_OPERACION','VENTA','DISPONIBILIDAD_TRAMO',
     'HORAS_ANTICIPACION','ORIGEN', 'DESTINO','TIPO_CLIENTE','NUM_ASIENTO'
                   ]].copy()
