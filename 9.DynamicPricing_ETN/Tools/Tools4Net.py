@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import os
+import json
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
@@ -18,6 +19,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
+from tensorflow.keras.models import model_from_json
 
 
 def Prepare_Data(df):
@@ -50,7 +52,7 @@ def Data4RedNeuronal(df_1):
     df_total['Hora_Corrida']=df['HORA_SALIDA_CORRIDA'].dt.hour
     df_total[['NUM_ASIENTO','HORAS_ANTICIPACION','%_dif_TBT_Venta']]=df[['NUM_ASIENTO','HORAS_ANTICIPACION','%_dif_TBT_Venta']].copy()
     df_total['Mes_Corrida']=df['FECHA_CORRIDA'].dt.month
-    df_total['Año_Corrida']=df['FECHA_CORRIDA'].dt.year
+    df_total['Anio_Corrida']=df['FECHA_CORRIDA'].dt.year
     df_total['Buen_Dia'] = df['FECHA_CORRIDA'].dt.dayofweek.isin([4,5,6,0]).astype(int)
     df_total['Buena_Hora'] = df['HORA_SALIDA_CORRIDA'].dt.hour.isin([23,17,18,19,20]).astype(int)
     df_total['Buen_Mes'] = df['FECHA_CORRIDA'].dt.month.isin([3,4,5,6]).astype(int)
@@ -113,7 +115,7 @@ def GetTrainingForm(df,Bandera):
     # Excluimos las binarias/dummies que ya están bien escaladas (0 o 1)
     numeric_features = [
         'DiaSemana_Corrida', 'Hora_Corrida', 'NUM_ASIENTO', 
-        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Año_Corrida'
+        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Anio_Corrida'
     ]
     
     # Columnas binarias (se dejan pasar sin transformación)
@@ -217,7 +219,7 @@ def PredictingNet(model,X_test, Y_test_log,Bandera):
 
 # -------------------------------------------------------------------------
 
-def DataForecasting(df,FrameN):
+def DataForecasting(df,datos_carac):
 
     df['TIPO_CLASE'] = np.where(
         df['CLASE_SERVICIO'].astype(str).str.contains('DOS PISOS', case=False, na=False),
@@ -226,16 +228,15 @@ def DataForecasting(df,FrameN):
     )
     df["HORA_SALIDA_CORRIDA"] = pd.to_datetime(df["HORA_SALIDA_CORRIDA"])
     df['FECHA_CORRIDA'] = pd.to_datetime(df['FECHA_CORRIDA'])
-    df_total = pd.DataFrame(columns=FrameN.columns)
-    print(df_total.shape)
+    df_total = pd.DataFrame(columns=datos_carac["FrameN.columns"])
     
     df_total['Origen-Destino'] = df['ORIGEN'].astype(str) + '-' + df['DESTINO'].astype(str)
     df_total['DiaSemana_Corrida']=df['FECHA_CORRIDA'].dt.dayofweek
     df_total['Hora_Corrida']=df['HORA_SALIDA_CORRIDA'].dt.hour
     df_total[['NUM_ASIENTO','HORAS_ANTICIPACION']]=df[['NUM_ASIENTO','HORAS_ANTICIPACION']].copy()
-    df_total['%_dif_TBT_Venta']=FrameN['%_dif_TBT_Venta'].mean()
+    df_total['%_dif_TBT_Venta']=datos_carac['%_dif_TBT_Venta']
     df_total['Mes_Corrida']=df['FECHA_CORRIDA'].dt.month
-    df_total['Año_Corrida']=df['FECHA_CORRIDA'].dt.year
+    df_total['Anio_Corrida']=df['FECHA_CORRIDA'].dt.year
     df_total['Buen_Dia'] = df['FECHA_CORRIDA'].dt.dayofweek.isin([4,5,6,0]).astype(int)
     df_total['Buena_Hora'] = df['HORA_SALIDA_CORRIDA'].dt.hour.isin([23,17,18,19,20]).astype(int)
     df_total['Buen_Mes'] = df['FECHA_CORRIDA'].dt.month.isin([3,4,5,6]).astype(int)
@@ -285,7 +286,7 @@ def GetPredictingForm(Fore,cols):
     # Excluimos las binarias/dummies que ya están bien escaladas (0 o 1)
     numeric_features = [
         'DiaSemana_Corrida', 'Hora_Corrida', 'NUM_ASIENTO', 
-        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Año_Corrida'
+        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Anio_Corrida'
     ]
     
     # Columnas binarias (se dejan pasar sin transformación)
@@ -327,16 +328,70 @@ def GetValues(model,Fore,X_final,Bandera):
     return Y_pred_real
     
 def ProcessingNet(data):
+    # Obtener el directorio de trabajo actual (ruta principal del proyecto).
+    ruta_principal = os.getcwd()
+
+    # Construir la ruta al archivo 
+    json_path = os.path.join(ruta_principal, "Models", "modelo_arquitectura.json")
+    json_Net = os.path.join(ruta_principal, "Files", "caracNet.json")
+    weights_path = os.path.join(ruta_principal, "Models", "modelo_pesos.weights.h5")
+    
     df=data[data.columns[1:]]
     Frame=df.copy()
     FrameN=Data4RedNeuronal(Frame.copy())
     Bandera = GetFlag(FrameN['VENTA'])
     X_processed, Y_log = GetTrainingForm(FrameN.copy(),Bandera)
     model= TrainingNet(X_processed,Y_log,Bandera)
+    
+    model_json = model.to_json()
+    with open(json_path, "w") as json_file:
+        json_file.write(model_json)
+    
+    model.save_weights(weights_path)
+    
+    carac = {
+        "X_processed.columns": list(X_processed.columns),
+        "Bandera": Bandera,
+        "%_dif_TBT_Venta": float(FrameN['%_dif_TBT_Venta'].mean()),
+        "FrameN.columns": list(FrameN.columns)
+    }
+
+    
+    with open(json_Net, "w", encoding="utf-8") as f:
+        json.dump(carac, f, ensure_ascii=False, indent=4)
+    
+    return
+
+def NewClientsPredNet(data):
+    # Obtener el directorio de trabajo actual (ruta principal del proyecto).
+    ruta_principal = os.getcwd()
+
+    # Construir la ruta al archivo 
+    json_path = os.path.join(ruta_principal, "Models", "modelo_arquitectura.json")
+    json_Net = os.path.join(ruta_principal, "Files", "caracNet.json")
+    weights_path = os.path.join(ruta_principal, "Models", "modelo_pesos.weights.h5")
+    
+    with open(json_Net, 'r') as f:
+        # 2. Cargar el contenido del archivo JSON
+        datos_carac = json.load(f)
+            
+    # 1. Cargar la arquitectura desde JSON
+    with open(json_path, 'r') as json_file:
+        loaded_model_json = json_file.read()
+    
+    loaded_model = model_from_json(loaded_model_json)
+    
+    # 2. Cargar los pesos entrenados desde HDF5
+    loaded_model.load_weights(weights_path)
+    
+    # 3. Compilar el modelo cargado (necesario antes de hacer predicciones)
+    loaded_model.compile(optimizer='adam', loss='mse', metrics=['mae', 'mse'])
+
     df_= PrepareData4Fore(data.copy())
     df_today=df_[df_.columns[1:]]
-    Fore=DataForecasting(df_today,FrameN)
-    X_final= GetPredictingForm(Fore, X_processed.columns)
-    PrecioDin=GetValues(model,Fore,X_final,Bandera)
+    Fore=DataForecasting(df_today,datos_carac)
+    X_final= GetPredictingForm(Fore, datos_carac["X_processed.columns"])
+    PrecioDin=GetValues(loaded_model,Fore,X_final,datos_carac["Bandera"])
     df_["PRECIO DINAMICO"]= PrecioDin
+    
     return df_

@@ -33,10 +33,13 @@ def Get_Data():
                 'TIPO_CORRIDA', 'TIPO_PASAJERO',  'TOTAL_BOLETOS',
                 'VENTA', 'VENTA_ANTICIPADA', 'VENTA_TOTAL']]
     
-    return D4NN, D4C
+    D4C1= D4C.copy()
+    D4C1['TARIFA']= D4NN["TARIFA_BASE_TRAMO"] - D4NN["IVA_TARIFA_BASE_TRAMO"]
+    
+    return D4NN, D4C, D4C1
 
 def GetDB():
     ruta_principal = os.getcwd()
-    config_path = os.path.join(ruta_principal, "Files", "ClusteringClientes.xlsx")
-    DB = pd.read_excel(config_path)
+    config_path = os.path.join(ruta_principal, "Files", "ClusteringClientes_Clustering.csv")
+    DB = pd.read_csv(config_path)
     return DB
