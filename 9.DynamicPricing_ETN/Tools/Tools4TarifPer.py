@@ -84,6 +84,9 @@ def GetTodayData4Cluster(Frame):
     Df.loc[(Df['PORCENT_PROMO'] == 0) & (Df['DESC_DESCUENTO'] == 'PROMOCION ESPECIAL'), 'DESC_DESCUENTO'] = 'ADULTO'
     
     Df['VENTA_ANTICIPADA']= np.where(Df['VENTA_ANTICIPADA']=='SI',1,0)
+    
+    Df['VENTA']= Df['TARIFA'].copy()
+    Df= Df.drop('TARIFA',axis=1)
     # Devolver el DataFrame final procesado.
     return Df
 

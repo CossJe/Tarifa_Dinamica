@@ -362,7 +362,18 @@ def ProcessingNet(data):
     
     return
 
-def NewClientsPredNet(data):
+def GetTodayData4Net(df_):
+    ruta_principal = os.getcwd()
+    json_Net = os.path.join(ruta_principal, "Files", "caracNet.json")
+    with open(json_Net, 'r') as f:
+        datos_carac = json.load(f)
+        
+    
+    df_today=df_[df_.columns[1:]]
+    Fore=DataForecasting(df_today,datos_carac)  
+    return Fore
+    
+def NewClientsPredNet(Fore):
     # Obtener el directorio de trabajo actual (ruta principal del proyecto).
     ruta_principal = os.getcwd()
 
@@ -372,7 +383,6 @@ def NewClientsPredNet(data):
     weights_path = os.path.join(ruta_principal, "Models", "modelo_pesos.weights.h5")
     
     with open(json_Net, 'r') as f:
-        # 2. Cargar el contenido del archivo JSON
         datos_carac = json.load(f)
             
     # 1. Cargar la arquitectura desde JSON
@@ -387,11 +397,8 @@ def NewClientsPredNet(data):
     # 3. Compilar el modelo cargado (necesario antes de hacer predicciones)
     loaded_model.compile(optimizer='adam', loss='mse', metrics=['mae', 'mse'])
 
-    df_= PrepareData4Fore(data.copy())
-    df_today=df_[df_.columns[1:]]
-    Fore=DataForecasting(df_today,datos_carac)
+
     X_final= GetPredictingForm(Fore, datos_carac["X_processed.columns"])
     PrecioDin=GetValues(loaded_model,Fore,X_final,datos_carac["Bandera"])
-    df_["PRECIO DINAMICO"]= PrecioDin
     
-    return df_
+    return PrecioDin

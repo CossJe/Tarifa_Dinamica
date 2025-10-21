@@ -1,29 +1,27 @@
 NOMBRE_PASAJERO,EMAIL,Cluster,PRECIO DINAMICO,%_Tarifa Personalizada,Precio final con IVA
-TANATIUH OCAMPO POPCA,tanatiuh.ocampo.popca@ejemplo.com,1,955.8078,0.0,1099.0
-JORDY ATANAEL MORALE ROJAS,jordy.atanael.morale.rojas@ejemplo.com,1,956.87054,0.0,1100.0
-MARIA JULIA AGULERA VEGA,maria.julia.agulera.vega@ejemplo.com,1,955.908,0.0,1099.0
-JESUS JAIMES CRUZ,jesus.jaimes.cruz@ejemplo.com,1,955.5732,0.0,1099.0
-YADIRA ROMERO RUIZ,yadira.romero.ruiz@ejemplo.com,5,959.4969,-4.5270814844559455,1060.0
-HORACIO LOPEZ VAN PRATT,horacio.lopez.van.pratt@ejemplo.com,3,899.6694,-4.5270814844559455,994.0
-ISMAEL GALVEZ VELAZQUEZ,ismael.galvez.velazquez@ejemplo.com,5,960.44037,-4.5270814844559455,1061.0
-SALVADOR MAGALLON RODRIGUEZ,salvador.magallon.rodriguez@ejemplo.com,3,955.2795,-4.5270814844559455,1055.0
-IRINEO GARCIA,irineo.garcia@ejemplo.com,3,955.4633,-4.5270814844559455,1056.0
-ROGELIO CARDENAS,rogelio.cardenas@ejemplo.com,3,955.4466,-4.5270814844559455,1056.0
-CARLOS ALBERTO LONGORIA,carlos.alberto.longoria@ejemplo.com,5,956.76654,-4.5270814844559455,1057.0
-GERARDO MEDINA,gerardo.medina@ejemplo.com,3,955.34546,-4.5270814844559455,1055.0
-LUIS CONTRERAS MEJIA,luis.contreras.mejia@ejemplo.com,5,955.0765,-4.5270814844559455,1055.0
-MARCO ANTONIO CHAVEZ MANZANO,marco.antonio.chavez.manzano@ejemplo.com,5,958.0844,-4.5270814844559455,1058.0
-NORA IVETH VILLEGAS AGUAYO,nora.iveth.villegas.aguayo@ejemplo.com,5,958.11957,-4.5270814844559455,1058.0
-ADRIAN SANCHEZ,adrian.sanchez@ejemplo.com,3,955.2878,-4.5270814844559455,1055.0
-CYNTHIA SLENDY DAVILA UNI,cynthia.slendy.davila.uni@ejemplo.com,5,959.0687,-4.5270814844559455,1060.0
-GEORGINA CASTRO BLAKE,georgina.castro.blake@ejemplo.com,3,954.75977,-4.5270814844559455,1055.0
-JOSE LUIS ARMAS,jose.luis.armas@ejemplo.com,3,955.00653,-4.5270814844559455,1055.0
-CRISTO ALEXIS GUTIERREZ,cristo.alexis.gutierrez@ejemplo.com,3,954.9714,-4.5270814844559455,1055.0
-CESAR JOVANI GARCÍA PÉREZ,cesar.jovani.garcía.pérez@ejemplo.com,5,960.3951,-4.5270814844559455,1061.0
-JORGE MELÉNDEZ,jorge.meléndez@ejemplo.com,5,958.4285,-4.5270814844559455,1059.0
-IGNACIO LOERA,ignacio.loera@ejemplo.com,3,956.78174,-4.5270814844559455,1057.0
-ALVARO HERNANDEZ,alvaro.hernandez@ejemplo.com,3,956.95197,-4.5270814844559455,1057.0
-EDGAR EDUARDO FLORES GALEANA,edgar.eduardo.flores.galeana@ejemplo.com,5,955.1827,-4.5270814844559455,1055.0
-JESUS HUERTA EVANGELISTA,jesus.huerta.evangelista@ejemplo.com,3,955.674,-4.5270814844559455,1056.0
-IRVING PIÑON,irving.piñon@ejemplo.com,3,955.63885,-4.5270814844559455,1056.0
-DARIO CHRISTIAN CARRILLO TEXPA,dario.christian.carrillo.texpa@ejemplo.com,5,960.46375,-4.5270814844559455,1061.0
+BRAUO9LIO MACIAS,brauo9lio.macias@ejemplo.com,1,969.07733,0.0,1114.0
+XIMENA BALDERRAMA,ximena.balderrama@ejemplo.com,1,966.4756,0.0,1111.0
+ALEXIS EDUARDO ANAYA,alexis.eduardo.anaya@ejemplo.com,1,965.1065,0.0,1110.0
+EDUARDO JONATHAN CORTES LARA,eduardo.jonathan.cortes.lara@ejemplo.com,1,966.9303,0.0,1112.0
+NICOLAS RUBIO,nicolas.rubio@ejemplo.com,1,967.31647,0.0,1112.0
+LUIS FELIPE CASTRO,luis.felipe.castro@ejemplo.com,1,967.64777,0.0,1113.0
+JUSSIEL TRINIDAD,jussiel.trinidad@ejemplo.com,1,963.7613,0.0,1108.0
+SAGRARIO ENCISO,sagrario.enciso@ejemplo.com,1,963.52423,0.0,1108.0
+SERGIO SORIA,sergio.soria@ejemplo.com,1,966.60547,0.0,1112.0
+VANIA GALAZA CURIEL,vania.galaza.curiel@ejemplo.com,1,963.9982,0.0,1109.0
+FERNANDO BAUTISTA,fernando.bautista@ejemplo.com,1,963.0501,0.0,1108.0
+FREDY CASTELAN GONXALEZ,fredy.castelan.gonxalez@ejemplo.com,5,966.1521,-4.5270814844559455,1067.0
+ALAN SAID SANDOVAL VALENCIA,alan.said.sandoval.valencia@ejemplo.com,5,965.3566,-4.5270814844559455,1066.0
+ALEJANDRO RAMIREZ SOLARES,alejandro.ramirez.solares@ejemplo.com,5,965.8112,-4.5270814844559455,1067.0
+MANUEL CORTÉS SANDOVAL,manuel.cortés.sandoval@ejemplo.com,5,966.69086,-4.5270814844559455,1068.0
+ANDREA MEDINA ROSAS,andrea.medina.rosas@ejemplo.com,1,969.8466,0.0,1115.0
+HORACIO JIMENEZ,horacio.jimenez@ejemplo.com,5,966.73083,-4.5270814844559455,1068.0
+GASBRIEL MAGALLON,gasbriel.magallon@ejemplo.com,1,968.55164,0.0,1114.0
+FALU FRANCISCO HERNANDEZ GARRIDO,falu.francisco.hernandez.garrido@ejemplo.com,1,964.36804,0.0,1109.0
+MARIA DOLORES BUSTOS HERNANDEZ,maria.dolores.bustos.hernandez@ejemplo.com,3,963.02277,-4.5270814844559455,1064.0
+JULIA CRUZ,julia.cruz@ejemplo.com,1,962.7858,0.0,1107.0
+ALFREDO ISMAEL ROMÁN MASSO,alfredo.ismael.román.masso@ejemplo.com,1,966.57806,0.0,1112.0
+DIEGO EDGAR RIOS TORRES,diego.edgar.rios.torres@ejemplo.com,1,966.8151,0.0,1112.0
+PETRA CARINO CASTREJON,petra.carino.castrejon@ejemplo.com,1,961.8377,0.0,1106.0
+LORENO MONTES RIOS,loreno.montes.rios@ejemplo.com,3,964.68195,-4.5270814844559455,1066.0
+ISAURA DOMINGUES HERRERA,isaura.domingues.herrera@ejemplo.com,1,960.4925,0.0,1105.0
