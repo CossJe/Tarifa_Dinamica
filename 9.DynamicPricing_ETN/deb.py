@@ -28,7 +28,7 @@ Elas=DataElas['Elasticidad']
 # Se obtienen los datos de los clientes para obtener la tarifa personalizada
 TodayData4C= T4TP.GetTodayData4Cluster(D4C1)
 TodayData4C['VENTA']= TodayData4C['TARIFA'].copy()
- TodayData4C= TodayData4C.drop('TARIFA',axis=1)
+TodayData4C= TodayData4C.drop('TARIFA',axis=1)
 # 1. Inicializa una lista vacía para guardar los resultados
 lista_resultados = []
 
