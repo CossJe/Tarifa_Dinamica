@@ -91,13 +91,12 @@ def GetTodayData4Cluster(Frame):
     return Df
 
 def GetDescuento(Cluster,Elas):
-    desc=Elas*5
     if Cluster== 0 or Cluster== 2:
         # Los de mayor valor monetario
-        return -desc
+        return Elas*(-2)
     elif Cluster== 3 or Cluster== 5:
         # Los más sensibles al precio o en riesgo de abandono
-        return desc
+        return Elas*5
     elif Cluster== 1 or Cluster== 4:
         # Viajeros frecuentes, no se obtendría un beneficio de aumentarles el precio
         return 0.0

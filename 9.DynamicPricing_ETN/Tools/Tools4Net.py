@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 import os
 import json
+import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
@@ -35,7 +36,7 @@ def Prepare_Data(df):
     
     df["HORA_SALIDA_CORRIDA"] = pd.to_datetime(df["HORA_SALIDA_CORRIDA"])
     
-    df['TBT']= df['TARIFA_BASE_TRAMO']-df['IVA_TARIFA_BASE_TRAMO']
+    df['TBT']= df['TARIFA_BASE_TRAMO']#-df['IVA_TARIFA_BASE_TRAMO']
     df['%_dif_TBT_Venta']= (df['TBT']-df['VENTA'])/df['TBT']
     df['TIPO_CLASE'] = np.where(
         df['CLASE_SERVICIO'].astype(str).str.contains('DOS PISOS', case=False, na=False),
@@ -95,10 +96,9 @@ def GetFlag(datos):
         
     return Bandera
 
-def GetTrainingForm(df,Bandera):
+def GetTrainingForm(df,Bandera,ruta_principal):
     # Definir la variable objetivo (Y)
     Y = df['VENTA']
-    
     if Bandera:
         # Aplicar la transformación logarítmica a Y
         Y_log = np.log(Y)
@@ -124,14 +124,18 @@ def GetTrainingForm(df,Bandera):
     indice_correcto = X[numeric_features].index # o df_ohe.index
     
     scaler = StandardScaler()
+
+    
     # 2. Convierte el array escalado (NumPy) a DataFrame, ASIGNANDO el índice correcto
     X_escalado_array = scaler.fit_transform(X[numeric_features])
     X_escalado = pd.DataFrame(X_escalado_array, 
                               index=indice_correcto, # <-- ¡CLAVE!
                               columns=numeric_features)
     
+    config_path = os.path.join(ruta_principal, "Models", 'ScalerNet.pkl')
+    joblib.dump(scaler,config_path )
+    
     X_processed= pd.concat([df_ohe, X_escalado,X[binary_features]], axis=1)
-
     return X_processed, Y_log
 
 def TrainingNet(X_processed,Y_log,Bandera):
@@ -260,8 +264,7 @@ def DataForecasting(df,datos_carac):
     # Une las nuevas columnas dummy al DataFrame original
 
     df_total['VENTA']=df['VENTA'].copy()
-
-    #df_total=df_total.fillna(0)
+    df_total=df_total.fillna(0)
     
     return df_total
 
@@ -272,9 +275,10 @@ def PrepareData4Fore(df):
     df['FECHA_OPERACION'] = pd.to_datetime(df['FECHA_OPERACION'])
     fecha_maxima = df['FECHA_OPERACION'].max()
     df = df[df['FECHA_OPERACION'] == fecha_maxima].copy()
+    df['VENTA']=df['TARIFA_BASE_TRAMO']
     return df 
 
-def GetPredictingForm(Fore,cols):
+def GetPredictingForm(Fore,cols,ruta_principal):
     X1 = Fore.drop('VENTA', axis=1)
     
     X_final=pd.DataFrame(columns=cols)
@@ -294,9 +298,11 @@ def GetPredictingForm(Fore,cols):
     
     indice_correcto = X1[numeric_features].index # o df_ohe.index
     
-    scaler = StandardScaler()
+    config_path = os.path.join(ruta_principal, "Models", 'ScalerNet.pkl')
+    scaler_cargado = joblib.load(config_path) # Carga el objeto guardado
+
     # 2. Convierte el array escalado (NumPy) a DataFrame, ASIGNANDO el índice correcto
-    X_escalado_array = scaler.fit_transform(X1[numeric_features])
+    X_escalado_array = scaler_cargado.transform(X1[numeric_features])
     X_escalado = pd.DataFrame(X_escalado_array, 
                               index=indice_correcto, # <-- ¡CLAVE!
                               columns=numeric_features)
@@ -340,7 +346,7 @@ def ProcessingNet(data):
     Frame=df.copy()
     FrameN=Data4RedNeuronal(Frame.copy())
     Bandera = GetFlag(FrameN['VENTA'])
-    X_processed, Y_log = GetTrainingForm(FrameN.copy(),Bandera)
+    X_processed, Y_log = GetTrainingForm(FrameN.copy(),Bandera,ruta_principal)
     model= TrainingNet(X_processed,Y_log,Bandera)
     
     model_json = model.to_json()
@@ -398,7 +404,7 @@ def NewClientsPredNet(Fore):
     loaded_model.compile(optimizer='adam', loss='mse', metrics=['mae', 'mse'])
 
 
-    X_final= GetPredictingForm(Fore, datos_carac["X_processed.columns"])
+    X_final= GetPredictingForm(Fore, datos_carac["X_processed.columns"],ruta_principal)
     PrecioDin=GetValues(loaded_model,Fore,X_final,datos_carac["Bandera"])
     
     return PrecioDin

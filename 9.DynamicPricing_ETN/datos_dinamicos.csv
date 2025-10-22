@@ -1,27 +1,27 @@
-NOMBRE_PASAJERO,EMAIL,Cluster,PRECIO DINAMICO,%_Tarifa Personalizada,Precio final con IVA
-BRAUO9LIO MACIAS,brauo9lio.macias@ejemplo.com,1,969.07733,0.0,1114.0
-XIMENA BALDERRAMA,ximena.balderrama@ejemplo.com,1,966.4756,0.0,1111.0
-ALEXIS EDUARDO ANAYA,alexis.eduardo.anaya@ejemplo.com,1,965.1065,0.0,1110.0
-EDUARDO JONATHAN CORTES LARA,eduardo.jonathan.cortes.lara@ejemplo.com,1,966.9303,0.0,1112.0
-NICOLAS RUBIO,nicolas.rubio@ejemplo.com,1,967.31647,0.0,1112.0
-LUIS FELIPE CASTRO,luis.felipe.castro@ejemplo.com,1,967.64777,0.0,1113.0
-JUSSIEL TRINIDAD,jussiel.trinidad@ejemplo.com,1,963.7613,0.0,1108.0
-SAGRARIO ENCISO,sagrario.enciso@ejemplo.com,1,963.52423,0.0,1108.0
-SERGIO SORIA,sergio.soria@ejemplo.com,1,966.60547,0.0,1112.0
-VANIA GALAZA CURIEL,vania.galaza.curiel@ejemplo.com,1,963.9982,0.0,1109.0
-FERNANDO BAUTISTA,fernando.bautista@ejemplo.com,1,963.0501,0.0,1108.0
-FREDY CASTELAN GONXALEZ,fredy.castelan.gonxalez@ejemplo.com,5,966.1521,-4.5270814844559455,1067.0
-ALAN SAID SANDOVAL VALENCIA,alan.said.sandoval.valencia@ejemplo.com,5,965.3566,-4.5270814844559455,1066.0
-ALEJANDRO RAMIREZ SOLARES,alejandro.ramirez.solares@ejemplo.com,5,965.8112,-4.5270814844559455,1067.0
-MANUEL CORTÉS SANDOVAL,manuel.cortés.sandoval@ejemplo.com,5,966.69086,-4.5270814844559455,1068.0
-ANDREA MEDINA ROSAS,andrea.medina.rosas@ejemplo.com,1,969.8466,0.0,1115.0
-HORACIO JIMENEZ,horacio.jimenez@ejemplo.com,5,966.73083,-4.5270814844559455,1068.0
-GASBRIEL MAGALLON,gasbriel.magallon@ejemplo.com,1,968.55164,0.0,1114.0
-FALU FRANCISCO HERNANDEZ GARRIDO,falu.francisco.hernandez.garrido@ejemplo.com,1,964.36804,0.0,1109.0
-MARIA DOLORES BUSTOS HERNANDEZ,maria.dolores.bustos.hernandez@ejemplo.com,3,963.02277,-4.5270814844559455,1064.0
-JULIA CRUZ,julia.cruz@ejemplo.com,1,962.7858,0.0,1107.0
-ALFREDO ISMAEL ROMÁN MASSO,alfredo.ismael.román.masso@ejemplo.com,1,966.57806,0.0,1112.0
-DIEGO EDGAR RIOS TORRES,diego.edgar.rios.torres@ejemplo.com,1,966.8151,0.0,1112.0
-PETRA CARINO CASTREJON,petra.carino.castrejon@ejemplo.com,1,961.8377,0.0,1106.0
-LORENO MONTES RIOS,loreno.montes.rios@ejemplo.com,3,964.68195,-4.5270814844559455,1066.0
-ISAURA DOMINGUES HERRERA,isaura.domingues.herrera@ejemplo.com,1,960.4925,0.0,1105.0
+NOMBRE_PASAJERO,EMAIL,Cluster,PRECIO DINAMICO,%_Tarifa Personalizada,TARIFA_BASE_TRAMO,Precio final con IVA,Precio final sin IVA
+VICENTE LOPEZ,vicente.lopez@ejemplo.com,3,952.3324,-4.5270814844559455,1163.79,1062.0,909.0
+JOSE LUIS THIRION,jose.luis.thirion@ejemplo.com,1,953.0563,0.0,1163.79,1106.0,953.0
+FABIAN AYALA,fabian.ayala@ejemplo.com,1,953.06244,0.0,1163.79,1106.0,953.0
+JOSUE HERNANDEZ,josue.hernandez@ejemplo.com,1,953.1111,0.0,1163.79,1106.0,953.0
+JAME AQUINO,jame.aquino@ejemplo.com,1,952.3628,0.0,1163.79,1105.0,952.0
+LUIS EDGAR SERVIN GOMEZ,luis.edgar.servin.gomez@ejemplo.com,1,953.1293,0.0,1163.79,1106.0,953.0
+DAVID ESCALANTE SANDOVAL,david.escalante.sandoval@ejemplo.com,3,953.17804,-4.5270814844559455,1163.79,1063.0,910.0
+JULIO ENRIQUE QUIÑOES ROJAS,julio.enrique.quiñoes.rojas@ejemplo.com,2,952.3444,1.8108325937823782,1163.79,1122.0,970.0
+MARCO ANTONIO CAMPOS,marco.antonio.campos@ejemplo.com,1,952.33844,0.0,1163.79,1105.0,952.0
+ADRIAN QUINTANA,adrian.quintana@ejemplo.com,1,953.2022,0.0,1163.79,1106.0,953.0
+JOVANY GONZALEZ GALEANA,jovany.gonzalez.galeana@ejemplo.com,1,953.07446,0.0,1163.79,1106.0,953.0
+JUAN  FERNANDO CORDOVA,juan..fernando.cordova@ejemplo.com,1,953.1538,0.0,1163.79,1106.0,953.0
+ANAHI GUADALUPE MOLINA GUERERO,anahi.guadalupe.molina.guerero@ejemplo.com,1,953.11725,0.0,1163.79,1106.0,953.0
+PRAXEDIS MARTINEZ,praxedis.martinez@ejemplo.com,1,960.4276,0.0,1163.79,1114.0,960.0
+ALINNA VERDUGO,alinna.verdugo@ejemplo.com,4,952.6212,0.0,1163.79,1105.0,953.0
+ADOLFO ZENEA GOMEZ,adolfo.zenea.gomez@ejemplo.com,1,953.4477,0.0,1163.79,1106.0,953.0
+EZEQUIEL GOMEZ LOPEZ,ezequiel.gomez.lopez@ejemplo.com,1,953.4662,0.0,1163.79,1106.0,953.0
+LUIIS RAMON CORONA,luiis.ramon.corona@ejemplo.com,3,953.4478,-4.5270814844559455,1163.79,1063.0,910.0
+MARIA DEL ROCIO OLVERA HUEZO,maria.del.rocio.olvera.huezo@ejemplo.com,3,953.4539,-4.5270814844559455,1163.79,1063.0,910.0
+MA GUADALUPE PEREZ TORRES,ma.guadalupe.perez.torres@ejemplo.com,5,953.34436,-4.5270814844559455,1163.79,1063.0,910.0
+RAYMUNDO RIVERA MORA,raymundo.rivera.mora@ejemplo.com,1,953.3869,0.0,1163.79,1106.0,953.0
+LAURA ESTHER LOPEZ,laura.esther.lopez@ejemplo.com,5,953.42334,-4.5270814844559455,1163.79,1063.0,910.0
+PERLA RAMIREZ,perla.ramirez@ejemplo.com,1,953.32605,0.0,1163.79,1106.0,953.0
+NICOLAS GARCIA TREJO,nicolas.garcia.trejo@ejemplo.com,1,953.38074,0.0,1163.79,1106.0,953.0
+JIMENA FUENTES,jimena.fuentes@ejemplo.com,4,953.36224,0.0,1163.79,1106.0,953.0
+ROBERTO CARLOS DEL AGUILA,roberto.carlos.del.aguila@ejemplo.com,4,953.33813,0.0,1163.79,1106.0,953.0
