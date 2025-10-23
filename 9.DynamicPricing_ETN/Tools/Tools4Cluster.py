@@ -156,9 +156,9 @@ def CompleteData4Cluster(Frame,ruta_principal):
     
     # 8. Exportar resultados a Excel
     config_path = os.path.join(ruta_principal, "Files", "PorCorreo.csv")
-    df_correo.to_csv(config_path, index=False)  # DataFrame agregado por cliente
+    #df_correo.to_csv(config_path, index=False)  # DataFrame agregado por cliente
     config_path = os.path.join(ruta_principal, "Files", "ventas.csv")
-    Df.to_csv(config_path, index=False)          # Dataset original con correcciones
+    #Df.to_csv(config_path, index=False)          # Dataset original con correcciones
     
     #9. Devolver el DataFrame consolidado para análisis/clustering
     return df_correo
@@ -343,9 +343,9 @@ def ClusteringData(bandera,Frame):
     
     cluster_profile = df_final.groupby('Cluster')[df_final.columns[1:]].mean().round(2)
     # 1. Guarda el DataFrame df_final (el que era la hoja 'Clustering')
-    csv_path_clustering = os.path.join(ruta_principal, "Files", "ClusteringClientes_Clustering.csv")
-    df_final.to_csv(csv_path_clustering, index=False)
+    path_clustering = os.path.join(ruta_principal, "Files", "ClusteringClientes_Clustering.parquet")
+    df_final.to_parquet(path_clustering, index=False)
     
     # 2. Guarda el DataFrame cluster_profile (el que era la hoja 'Resumen')
-    csv_path_resumen = os.path.join(ruta_principal, "Files", "ClusteringClientes_Resumen.csv")
-    cluster_profile.to_csv(csv_path_resumen, index=False)
+    path_resumen = os.path.join(ruta_principal, "Files", "ClusteringClientes_Resumen.parquet")
+    cluster_profile.to_parquet(path_resumen, index=False)

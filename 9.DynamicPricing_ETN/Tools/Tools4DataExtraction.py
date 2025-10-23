@@ -40,6 +40,6 @@ def Get_Data():
 
 def GetDB():
     ruta_principal = os.getcwd()
-    config_path = os.path.join(ruta_principal, "Files", "ClusteringClientes_Clustering.csv")
-    DB = pd.read_csv(config_path)
+    config_path = os.path.join(ruta_principal, "Files", "ClusteringClientes_Clustering.parquet")
+    DB = pd.read_parquet(config_path)
     return DB
