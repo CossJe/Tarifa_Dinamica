@@ -13,7 +13,7 @@ import seaborn as sns
 import os
 import json
 import statsmodels.api as sm
-
+from datetime import timedelta
 from src.dynamic_pricing_data_loader import cargar_y_preparar_datos
 
 def Get_goodDay(df, atribute, atribute1):
@@ -71,7 +71,7 @@ def Get_goodDay(df, atribute, atribute1):
     
     return df_output
 
-def GetData(year):
+def GetData(Bandera):
     """
     Carga, filtra y prepara los datos de ventas para un año específico.
 
@@ -99,8 +99,9 @@ def GetData(year):
     
     # Se seleccionan las columnas de interés.
     Df = Frame[['OPERACION', 'FECHA_CORRIDA', 'FECHA_OPERACION', 'TIPO_PASAJERO', 'VENTA',
-                'KMS_TRAMO', 'PAX_SUBEN', 'VENTA_ANTICIPADA', 'TIPO_CORRIDA',
-                'DESC_DESCUENTO', 'PORCENT_PROMO', 'IVA_VENDIDO', 'TARIFA_BASE_TRAMO', 'IVA_TARIFA_BASE_TRAMO']]
+                'KMS_TRAMO', 'PAX_SUBEN', 'VENTA_ANTICIPADA', 'TIPO_CORRIDA','HORAS_ANTICIPACION',
+                'DESC_DESCUENTO', 'PORCENT_PROMO', 'IVA_VENDIDO', 'TARIFA_BASE_TRAMO', 'IVA_TARIFA_BASE_TRAMO',
+                'HORA_SALIDA_CORRIDA']]
 
     # Se filtra el DataFrame para incluir solo ventas mayores que cero.
     Df = Df[Df['VENTA'] > 0]
@@ -108,17 +109,34 @@ def GetData(year):
     # Se convierte la columna 'FECHA_OPERACION' a tipo datetime.
     Df['FECHA_OPERACION'] = pd.to_datetime(Df['FECHA_OPERACION'])
     
-    # Se filtra por el año especificado.
-    Df = Df[Df['FECHA_OPERACION'].dt.year == year]
+    if Bandera:
+        # Se filtra por el año especificado.
+        Df = Df[Df['FECHA_OPERACION'].dt.year == 2024]
+    else:
+        # 1. Encontrar la fecha máxima
+        fecha_maxima = Df['FECHA_OPERACION'].max()
+        
+        # 2. Calcular el día anterior a la fecha máxima
+        dia_anterior = fecha_maxima - timedelta(days=1)
+        
+        # 3. Calcular la fecha de inicio (365 días antes del día_anterior)
+        fecha_inicio = dia_anterior - timedelta(days=364) # Para incluir 365 días, es decir, día_anterior y los 364 previos.
+        
+        # 4. Filtrar el DataFrame
+        # Se incluyen todas las fechas en el rango [fecha_inicio, dia_anterior]
+        Df = Df[
+            (Df['FECHA_OPERACION'] >= fecha_inicio) & 
+            (Df['FECHA_OPERACION'] <= dia_anterior)
+        ].copy()
     
     # Se calculan las columnas 'PRECIO' y 'TARIFA' restando el IVA.
-    Df['PRECIO'] = Df['VENTA'] - Df['IVA_VENDIDO']
-    Df['TARIFA'] = Df['TARIFA_BASE_TRAMO'] - Df['IVA_TARIFA_BASE_TRAMO']
+    Df['PRECIO'] = Df['VENTA'] + Df['IVA_VENDIDO']
+    Df['TARIFA'] = Df['TARIFA_BASE_TRAMO'] + Df['IVA_TARIFA_BASE_TRAMO']
     
     # Se vuelven a seleccionar las columnas finales.
     Df = Df[['OPERACION', 'FECHA_CORRIDA', 'FECHA_OPERACION', 'TIPO_PASAJERO', 'VENTA', 'PRECIO',
              'KMS_TRAMO', 'PAX_SUBEN', 'VENTA_ANTICIPADA', 'TIPO_CORRIDA', 'TARIFA',
-             'DESC_DESCUENTO', 'PORCENT_PROMO']]
+             'DESC_DESCUENTO', 'PORCENT_PROMO','HORAS_ANTICIPACION','HORA_SALIDA_CORRIDA']]
     
     # Se reemplazan los valores NaN en 'PORCENT_PROMO' con 0.
     Df['PORCENT_PROMO'] = Df['PORCENT_PROMO'].fillna(0)
@@ -126,7 +144,7 @@ def GetData(year):
     # Se retorna solo las filas donde 'TIPO_CORRIDA' es 'NORMAL'.
     return Df[Df['TIPO_CORRIDA'] == 'NORMAL']
 
-def GetFeatures(df):
+def GetFeatures(df,BC_json):
     """
     Realiza la ingeniería de características en un DataFrame de datos de ventas.
 
@@ -162,16 +180,71 @@ def GetFeatures(df):
     Frame.rename(columns={'PAX_SUBEN': 'Q_Boletos'}, inplace=True)
     
     # Se llama a la función Get_goodDay para agregar la columna 'Buen_dia'.
-    Frame = Get_goodDay(Frame, 'PRECIO', 'FECHA_CORRIDA')
+    #Frame = Get_goodDay(Frame, 'PRECIO', 'FECHA_CORRIDA')
     
     # Se convierten las columnas booleanas a tipo entero.
-    Frame['Fin_Semana_Viaje'] = Frame['Fin_Semana_Viaje'].astype(int)
-    Frame['Buen_dia'] = Frame['Buen_dia'].astype(int)
+    #Frame['Fin_Semana_Viaje'] = Frame['Fin_Semana_Viaje'].astype(int)
+    #Frame['Buen_dia'] = Frame['Buen_dia'].astype(int)
+    
+    Frame['Buen_Dia'] = Frame['FECHA_CORRIDA'].dt.dayofweek.isin(BC_json["DiaBueno"]).astype(int)
+    Frame['Buena_Hora'] = Frame['HORA_SALIDA_CORRIDA'].dt.hour.isin(BC_json["HoraBuena"]).astype(int)
+    Frame['Buen_Mes'] = Frame['FECHA_CORRIDA'].dt.month.isin(BC_json["MesBueno"]).astype(int)
     
     # Se eliminan las filas con valores nulos.
     Frame = Frame.dropna()
     
     return Frame
+
+
+def GetElasticity_Log(df):
+    """
+    Calcula la elasticidad precio de la demanda usando regresión log-log en dos etapas.
+
+    Parámetros:
+    -----------
+    df : pd.DataFrame
+        Debe contener 'PRECIO', 'Q_Boletos', 'TARIFA' y otras variables exógenas.
+
+    Retorna:
+    --------
+    tuple
+        - Coef (list): Coeficientes de la segunda etapa.
+        - elasticidad (float): Elasticidad precio de la demanda.
+    """
+    Frame = df.copy()
+    
+    # Transformar precio y cantidad a logaritmo
+    Frame['log_PRECIO'] = np.log(Frame['PRECIO'])
+    Frame['log_Q_Boletos'] = np.log(Frame['Q_Boletos'])
+    
+    # Primera etapa: regresión del log-precio sobre variables instrumentales
+    X_P = Frame[['TARIFA', 'HORAS_ANTICIPACION', 'Buen_Mes', 'Buena_Hora', 'Buen_Dia']]
+    X_P = sm.add_constant(X_P)
+    Y_P = Frame['log_PRECIO']
+    
+    reg_stage1 = sm.OLS(Y_P, X_P).fit()
+    
+    # Valores predichos del log-precio
+    T_Est = pd.DataFrame(reg_stage1.predict(X_P), columns=['log_T_Est'])
+    
+    # Segunda etapa: regresión de log-cantidad sobre log-precio estimado y exógenas
+    X_Q = Frame[['HORAS_ANTICIPACION', 'Buen_Mes', 'Buena_Hora', 'Buen_Dia']]
+    X_Q = pd.concat([T_Est, X_Q], axis=1)
+    X_Q = sm.add_constant(X_Q)
+    
+    Y_Q = Frame['log_Q_Boletos']
+    reg_stage2 = sm.OLS(Y_Q, X_Q).fit()
+    
+    # Elasticidad precio directamente como coeficiente del log-precio estimado
+    beta1 = reg_stage2.params['log_T_Est']
+    elasticidad = beta1  # En log-log, el coeficiente ya es la elasticidad
+    
+    print(f"La elasticidad de la demanda (log-log) es: {elasticidad:.4f}")
+    
+    Coef = list(reg_stage2.params)
+    
+    return Coef, elasticidad
+
 
 def GetElasticity(df):
     """
@@ -197,11 +270,11 @@ def GetElasticity(df):
     
     # Se definen las variables para la primera etapa de la regresión.
     # X_P son las variables predictoras del precio de venta, incluyendo la tarifa.
-    X_P = Frame[['TARIFA', 'Dias_Anticipacion', 'Mes_Viaje', 'Fin_Semana_Viaje', 'Buen_dia']]
+    X_P = Frame[['TARIFA', 'HORAS_ANTICIPACION', 'Buen_Mes', 'Buena_Hora', 'Buen_Dia']]
     Y_P = pd.DataFrame(Frame['PRECIO'])
     
     # Se definen las variables para la segunda etapa.
-    X_Q = Frame[['Dias_Anticipacion', 'Mes_Viaje', 'Fin_Semana_Viaje', 'Buen_dia']]
+    X_Q = Frame[['HORAS_ANTICIPACION', 'Buen_Mes', 'Buena_Hora', 'Buen_Dia']]
     
     # Primera Etapa: Regresión del Precio de Venta (Y_P) sobre sus predictoras (X_P).
     X_P = sm.add_constant(X_P)  # Se agrega una constante para el intercepto.
@@ -281,7 +354,7 @@ chos de venta.
     PrecioMaximo = Dp * PM + PM
     PrecioSugerido = Dp * PS + PS
     
-    print(f"El precio maximo a vender es: {PrecioMaximo:.4f}")
+    #print(f"El precio maximo a vender es: {PrecioMaximo:.4f}")
 
     return PrecioMaximo, PrecioSugerido
 
@@ -317,10 +390,15 @@ def MainElas():
         'Buen_dia': 1
     }
     
+    BuenasCarac_path = os.path.join(ruta_principal, "Files", "BuenaCaracteristicas.json")
+    with open(BuenasCarac_path, 'r') as f:
+        # 2. Cargar el contenido del archivo JSON
+        BC_json = json.load(f)
+            
     # Se obtienen y preparan los datos para el año 2024.
-    Frame = GetData(2024)
+    Frame = GetData(False)
     TBT= Frame['TARIFA'].iloc[-1]
-    Frame = GetFeatures(Frame)
+    Frame = GetFeatures(Frame,BC_json)
     
     # Se calculan los coeficientes del modelo de elasticidad y el valor de la elasticidad.
     Coef, Elasticidad = GetElasticity(Frame)

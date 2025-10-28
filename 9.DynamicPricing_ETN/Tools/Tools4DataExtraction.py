@@ -36,7 +36,9 @@ def Get_Data():
     D4C1= D4C.copy()
     D4C1['TARIFA']= D4NN["TARIFA_BASE_TRAMO"] - D4NN["IVA_TARIFA_BASE_TRAMO"]
     
-    return D4NN, D4C, D4C1
+    D4GC= Frame[['CAPACIDAD_ASIENTOS_TRAMO','FECHA_OPERACION',]]
+    
+    return D4NN, D4C, D4C1, Frame
 
 def GetDB():
     ruta_principal = os.getcwd()

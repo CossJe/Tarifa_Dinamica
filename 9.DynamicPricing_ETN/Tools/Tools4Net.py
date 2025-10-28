@@ -21,17 +21,34 @@ from tensorflow.keras.layers import Dense
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
 from tensorflow.keras.models import model_from_json
+from datetime import timedelta
 
-
-def Prepare_Data(df):
+def Prepare_Data(df,Bandera):
     #df=Get_Data()
     # Se filtra el DataFrame para incluir solo ventas mayores que cero.
     df = df[df['VENTA'] > 0]
     df=df[df['BOLETOS_VEND']>0]
     df=df.drop('BOLETOS_VEND',axis=1)
+    
     df['FECHA_OPERACION'] = pd.to_datetime(df['FECHA_OPERACION'])
     fecha_maxima = df['FECHA_OPERACION'].max()
-    df = df[df['FECHA_OPERACION'] < fecha_maxima].copy()
+    
+    if Bandera==1:
+        dia_anterior = fecha_maxima - timedelta(days=1)
+        fecha_inicio = dia_anterior - timedelta(days=364)
+        df = df[
+                (df['FECHA_OPERACION'] >= fecha_inicio) & 
+                (df['FECHA_OPERACION'] <= dia_anterior)
+            ].copy() 
+        
+    elif Bandera==-1:
+        dia_anterior = fecha_maxima - timedelta(days=7)
+        df = df[df['FECHA_OPERACION'] <= dia_anterior].copy()  
+    else:
+        dia_anterior = fecha_maxima - timedelta(days=1)
+        df = df[df['FECHA_OPERACION'] <= dia_anterior].copy() 
+    
+    #df = df[df['FECHA_OPERACION'] < fecha_maxima].copy()
     df['FECHA_CORRIDA'] = pd.to_datetime(df['FECHA_CORRIDA'])
     
     df["HORA_SALIDA_CORRIDA"] = pd.to_datetime(df["HORA_SALIDA_CORRIDA"])
@@ -45,8 +62,8 @@ def Prepare_Data(df):
     )
     return df 
 
-def Data4RedNeuronal(df_1):
-    df=Prepare_Data(df_1)
+def Data4RedNeuronal(df_1,BC_json,Bandera):
+    df=Prepare_Data(df_1,Bandera)
     df_total= pd.DataFrame()
     df_total['Origen-Destino'] = df['ORIGEN'].astype(str) + '-' + df['DESTINO'].astype(str)
     df_total['DiaSemana_Corrida']=df['FECHA_CORRIDA'].dt.dayofweek
@@ -54,9 +71,9 @@ def Data4RedNeuronal(df_1):
     df_total[['NUM_ASIENTO','HORAS_ANTICIPACION','%_dif_TBT_Venta']]=df[['NUM_ASIENTO','HORAS_ANTICIPACION','%_dif_TBT_Venta']].copy()
     df_total['Mes_Corrida']=df['FECHA_CORRIDA'].dt.month
     df_total['Anio_Corrida']=df['FECHA_CORRIDA'].dt.year
-    df_total['Buen_Dia'] = df['FECHA_CORRIDA'].dt.dayofweek.isin([4,5,6,0]).astype(int)
-    df_total['Buena_Hora'] = df['HORA_SALIDA_CORRIDA'].dt.hour.isin([23,17,18,19,20]).astype(int)
-    df_total['Buen_Mes'] = df['FECHA_CORRIDA'].dt.month.isin([3,4,5,6]).astype(int)
+    df_total['Buen_Dia'] = df['FECHA_CORRIDA'].dt.dayofweek.isin(BC_json["DiaBueno"]).astype(int)
+    df_total['Buena_Hora'] = df['HORA_SALIDA_CORRIDA'].dt.hour.isin(BC_json["HoraBuena"]).astype(int)
+    df_total['Buen_Mes'] = df['FECHA_CORRIDA'].dt.month.isin(BC_json["MesBueno"]).astype(int)
     df_total['Buen_Asiento'] = df['NUM_ASIENTO'].isin([1,2,3,4,5,6,7,8,9,10]).astype(int)
     # Crea un nuevo DataFrame con las variables dummy (codificación one-hot)
     df_dummies = pd.get_dummies(
@@ -74,7 +91,7 @@ def Data4RedNeuronal(df_1):
     
     # Une las nuevas columnas dummy al DataFrame original
     df_total = pd.concat([df_total, df_dummies,df_dummies1], axis=1)
-    df_total['VENTA']=df['VENTA'].copy()
+    df_total['VENTA']=df['TARIFA_BASE_TRAMO'].copy()
 
     return df_total
 
@@ -223,7 +240,7 @@ def PredictingNet(model,X_test, Y_test_log,Bandera):
 
 # -------------------------------------------------------------------------
 
-def DataForecasting(df,datos_carac):
+def DataForecasting(df,datos_carac,BC_json):
 
     df['TIPO_CLASE'] = np.where(
         df['CLASE_SERVICIO'].astype(str).str.contains('DOS PISOS', case=False, na=False),
@@ -241,9 +258,9 @@ def DataForecasting(df,datos_carac):
     df_total['%_dif_TBT_Venta']=datos_carac['%_dif_TBT_Venta']
     df_total['Mes_Corrida']=df['FECHA_CORRIDA'].dt.month
     df_total['Anio_Corrida']=df['FECHA_CORRIDA'].dt.year
-    df_total['Buen_Dia'] = df['FECHA_CORRIDA'].dt.dayofweek.isin([4,5,6,0]).astype(int)
-    df_total['Buena_Hora'] = df['HORA_SALIDA_CORRIDA'].dt.hour.isin([23,17,18,19,20]).astype(int)
-    df_total['Buen_Mes'] = df['FECHA_CORRIDA'].dt.month.isin([3,4,5,6]).astype(int)
+    df_total['Buen_Dia'] = df['FECHA_CORRIDA'].dt.dayofweek.isin(BC_json["DiaBueno"]).astype(int)
+    df_total['Buena_Hora'] = df['HORA_SALIDA_CORRIDA'].dt.hour.isin(BC_json["HoraBuena"]).astype(int)
+    df_total['Buen_Mes'] = df['FECHA_CORRIDA'].dt.month.isin(BC_json["MesBueno"]).astype(int)
     df_total['Buen_Asiento'] = df['NUM_ASIENTO'].isin([1,2,3,4,5,6,7,8,9,10]).astype(int)
     # Crea un nuevo DataFrame con las variables dummy (codificación one-hot)
     df_dummies = pd.get_dummies(
@@ -268,13 +285,24 @@ def DataForecasting(df,datos_carac):
     
     return df_total
 
-def PrepareData4Fore(df):
+def PrepareData4Fore(df,Bandera):
     #df=Get_Data()
     # Se filtra el DataFrame para incluir solo ventas mayores que cero.
     df = df[df['VENTA'] > 0]
     df['FECHA_OPERACION'] = pd.to_datetime(df['FECHA_OPERACION'])
     fecha_maxima = df['FECHA_OPERACION'].max()
-    df = df[df['FECHA_OPERACION'] == fecha_maxima].copy()
+    
+    if Bandera:
+        dia_anterior = fecha_maxima 
+        fecha_inicio = dia_anterior - timedelta(days=6)
+        df = df[
+                (df['FECHA_OPERACION'] >= fecha_inicio) & 
+                (df['FECHA_OPERACION'] <= dia_anterior)
+            ].copy() 
+    else:
+        df = df[df['FECHA_OPERACION'] == fecha_maxima].copy() 
+        
+    
     df['VENTA']=df['TARIFA_BASE_TRAMO']
     return df 
 
@@ -333,7 +361,7 @@ def GetValues(model,Fore,X_final,Bandera):
     #print(f"\nEl Error Absoluto Medio (MAE) final es de: {mae_real:,.2f} [Moneda]")
     return Y_pred_real
     
-def ProcessingNet(data):
+def ProcessingNet(data,Bandera):
     # Obtener el directorio de trabajo actual (ruta principal del proyecto).
     ruta_principal = os.getcwd()
 
@@ -342,9 +370,14 @@ def ProcessingNet(data):
     json_Net = os.path.join(ruta_principal, "Files", "caracNet.json")
     weights_path = os.path.join(ruta_principal, "Models", "modelo_pesos.weights.h5")
     
+    BuenasCarac_path = os.path.join(ruta_principal, "Files", "BuenaCaracteristicas.json")
+    with open(BuenasCarac_path, 'r') as f:
+        # 2. Cargar el contenido del archivo JSON
+        BC_json = json.load(f)
+        
     df=data[data.columns[1:]]
     Frame=df.copy()
-    FrameN=Data4RedNeuronal(Frame.copy())
+    FrameN=Data4RedNeuronal(Frame.copy(),BC_json,Bandera)
     Bandera = GetFlag(FrameN['VENTA'])
     X_processed, Y_log = GetTrainingForm(FrameN.copy(),Bandera,ruta_principal)
     model= TrainingNet(X_processed,Y_log,Bandera)
@@ -374,9 +407,13 @@ def GetTodayData4Net(df_):
     with open(json_Net, 'r') as f:
         datos_carac = json.load(f)
         
-    
+    BuenasCarac_path = os.path.join(ruta_principal, "Files", "BuenaCaracteristicas.json")
+    with open(BuenasCarac_path, 'r') as f:
+        # 2. Cargar el contenido del archivo JSON
+        BC_json = json.load(f)
+        
     df_today=df_[df_.columns[1:]]
-    Fore=DataForecasting(df_today,datos_carac)  
+    Fore=DataForecasting(df_today,datos_carac,BC_json)  
     return Fore
     
 def NewClientsPredNet(Fore):
@@ -387,7 +424,7 @@ def NewClientsPredNet(Fore):
     json_path = os.path.join(ruta_principal, "Models", "modelo_arquitectura.json")
     json_Net = os.path.join(ruta_principal, "Files", "caracNet.json")
     weights_path = os.path.join(ruta_principal, "Models", "modelo_pesos.weights.h5")
-    
+            
     with open(json_Net, 'r') as f:
         datos_carac = json.load(f)
             
