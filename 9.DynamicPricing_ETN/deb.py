@@ -24,39 +24,26 @@ from functools import reduce
 D4NN, D4C, D4C1, D4GC = T4DE.Get_Data()
 
 #T4E.MainElas()
+#TCD.BuenasCaracteristicas(D4GC)
+#kpi= TCD.calcular_kpis(D4GC)
 
 """
-#TCD.BuenasCaracteristicas(D4GC)
-kpi= KpiC.calcular_kpis(D4GC,'AÑO',2025)
-
-VxA= kpi['venta_x_asientos']
-
-Capacidad= VxA['CAPACIDAD_ASIENTOS_TRAMO'].unique()
-
-frames=[]
+Capacidad= kpi['CAPACIDAD_ASIENTOS_TRAMO'].unique()
+Data={}
 for cap in Capacidad:
     # Definimos el valor de la capacidad que quieres filtrar
     capacidad_objetivo = cap
     
     # Aplicamos los dos filtros usando el operador lógico '&' (AND)
-    filtro = (VxA['CAPACIDAD_ASIENTOS_TRAMO'] == capacidad_objetivo) & (VxA['PROP_ACUM'] <= 0.60)
+    filtro = (kpi['CAPACIDAD_ASIENTOS_TRAMO'] == capacidad_objetivo) & (kpi['PROP_ACUM'] <= 0.60)
     
     # Aplicamos el filtro al DataFrame
-    resultado = VxA[filtro]['NUM_ASIENTO']
-    frames.append(resultado)
+    resultado = kpi[filtro]['NUM_ASIENTO']
+    Data[cap]= list(resultado)
     
-# 1. Convertir cada Serie (lista de asientos) a un conjunto para la intersección
-conjuntos_de_asientos = [set(frame) for frame in frames]
-
-# 2. Usar reduce para encontrar la intersección común a todos los conjuntos
-#    La intersección te da solo los elementos que están presentes en TODOS.
-asientos_comunes_set = reduce(set.intersection, conjuntos_de_asientos)
-
-# 3. (Opcional) Convertir el resultado de nuevo a una lista si lo necesitas
-asientos_comunes_lista = list(asientos_comunes_set)
 """
 
-""" """
+
 # 0 es para todos los dias antes de ayer
 # -1 es para todos los dias antes de 6 dias desde ayer
 # 1 es desde ayer hasta hace un año

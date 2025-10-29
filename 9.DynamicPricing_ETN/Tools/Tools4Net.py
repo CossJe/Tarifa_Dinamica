@@ -42,7 +42,7 @@ def Prepare_Data(df,Bandera):
             ].copy() 
         
     elif Bandera==-1:
-        dia_anterior = fecha_maxima - timedelta(days=7)
+        dia_anterior = fecha_maxima - timedelta(days=8)
         df = df[df['FECHA_OPERACION'] <= dia_anterior].copy()  
     else:
         dia_anterior = fecha_maxima - timedelta(days=1)
@@ -74,7 +74,27 @@ def Data4RedNeuronal(df_1,BC_json,Bandera):
     df_total['Buen_Dia'] = df['FECHA_CORRIDA'].dt.dayofweek.isin(BC_json["DiaBueno"]).astype(int)
     df_total['Buena_Hora'] = df['HORA_SALIDA_CORRIDA'].dt.hour.isin(BC_json["HoraBuena"]).astype(int)
     df_total['Buen_Mes'] = df['FECHA_CORRIDA'].dt.month.isin(BC_json["MesBueno"]).astype(int)
-    df_total['Buen_Asiento'] = df['NUM_ASIENTO'].isin([1,2,3,4,5,6,7,8,9,10]).astype(int)
+    
+    DictAsientosBuenos=BC_json["AsientosBuenos"]
+    # 1. Convertir la columna 'CAPACIDAD_ASIENTOS_TRAMO' de df a string (si las llaves del diccionario son strings).
+    # Esto se hace en df, que es donde se encuentra la columna de capacidad.
+    df['CAPACIDAD_ASIENTOS_TRAMO'] = df['CAPACIDAD_ASIENTOS_TRAMO'].astype(str)
+    
+    # 2. Mapear la lista de asientos buenos a una nueva columna temporal en df_total
+    # Usamos la columna de df para buscar las listas en DictAsientosBuenos.
+    df_total['LISTA_ASIENTOS_BUENOS'] = df['CAPACIDAD_ASIENTOS_TRAMO'].map(DictAsientosBuenos)
+    
+    # 3. Aplicar la lógica para crear la columna 'Buen_Asiento' en df_total
+    # Esto verifica si el 'NUM_ASIENTO' (que asumimos está en df_total) está en la lista mapeada.
+    df_total['Buen_Asiento'] = df_total.apply(
+        # Si el valor de la celda es una lista, realiza la comprobación. Si no, es 0.
+        lambda row: int(row['NUM_ASIENTO'] in row['LISTA_ASIENTOS_BUENOS'])
+        if isinstance(row['LISTA_ASIENTOS_BUENOS'], list) else 0,
+        axis=1
+    )
+    # 4. Eliminar la columna temporal de df_total
+    df_total = df_total.drop(columns=['LISTA_ASIENTOS_BUENOS'])
+    
     # Crea un nuevo DataFrame con las variables dummy (codificación one-hot)
     df_dummies = pd.get_dummies(
         df['TIPO_CLIENTE'],
@@ -261,7 +281,30 @@ def DataForecasting(df,datos_carac,BC_json):
     df_total['Buen_Dia'] = df['FECHA_CORRIDA'].dt.dayofweek.isin(BC_json["DiaBueno"]).astype(int)
     df_total['Buena_Hora'] = df['HORA_SALIDA_CORRIDA'].dt.hour.isin(BC_json["HoraBuena"]).astype(int)
     df_total['Buen_Mes'] = df['FECHA_CORRIDA'].dt.month.isin(BC_json["MesBueno"]).astype(int)
-    df_total['Buen_Asiento'] = df['NUM_ASIENTO'].isin([1,2,3,4,5,6,7,8,9,10]).astype(int)
+    
+    
+    
+    DictAsientosBuenos=BC_json["AsientosBuenos"]
+    # 1. Convertir la columna 'CAPACIDAD_ASIENTOS_TRAMO' de df a string (si las llaves del diccionario son strings).
+    # Esto se hace en df, que es donde se encuentra la columna de capacidad.
+    df['CAPACIDAD_ASIENTOS_TRAMO'] = df['CAPACIDAD_ASIENTOS_TRAMO'].astype(str)
+    
+    # 2. Mapear la lista de asientos buenos a una nueva columna temporal en df_total
+    # Usamos la columna de df para buscar las listas en DictAsientosBuenos.
+    df_total['LISTA_ASIENTOS_BUENOS'] = df['CAPACIDAD_ASIENTOS_TRAMO'].map(DictAsientosBuenos)
+    
+    # 3. Aplicar la lógica para crear la columna 'Buen_Asiento' en df_total
+    # Esto verifica si el 'NUM_ASIENTO' (que asumimos está en df_total) está en la lista mapeada.
+    df_total['Buen_Asiento'] = df_total.apply(
+        # Si el valor de la celda es una lista, realiza la comprobación. Si no, es 0.
+        lambda row: int(row['NUM_ASIENTO'] in row['LISTA_ASIENTOS_BUENOS'])
+        if isinstance(row['LISTA_ASIENTOS_BUENOS'], list) else 0,
+        axis=1
+    )
+    # 4. Eliminar la columna temporal de df_total
+    df_total = df_total.drop(columns=['LISTA_ASIENTOS_BUENOS'])
+    
+    
     # Crea un nuevo DataFrame con las variables dummy (codificación one-hot)
     df_dummies = pd.get_dummies(
         df['TIPO_CLIENTE'],
@@ -294,7 +337,7 @@ def PrepareData4Fore(df,Bandera):
     
     if Bandera:
         dia_anterior = fecha_maxima 
-        fecha_inicio = dia_anterior - timedelta(days=6)
+        fecha_inicio = dia_anterior - timedelta(days=7)
         df = df[
                 (df['FECHA_OPERACION'] >= fecha_inicio) & 
                 (df['FECHA_OPERACION'] <= dia_anterior)

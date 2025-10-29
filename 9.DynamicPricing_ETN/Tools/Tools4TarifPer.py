@@ -12,13 +12,22 @@ import os
 import json
 from xgboost import XGBClassifier # Importamos el clasificador de XGBoost
 import joblib
+from datetime import timedelta
 
-def GetTodayData4Cluster(Frame):
+def GetTodayData4Cluster(Frame,Bandera):
     Df=Frame.copy()
     
     Df['FECHA_OPERACION'] = pd.to_datetime(Df['FECHA_OPERACION'])
     fecha_maxima = Df['FECHA_OPERACION'].max()
-    Df = Df[Df['FECHA_OPERACION'] == fecha_maxima].copy()
+    if Bandera:
+        dia_anterior = fecha_maxima 
+        fecha_inicio = dia_anterior - timedelta(days=7)
+        Df = Df[
+                (Df['FECHA_OPERACION'] >= fecha_inicio) & 
+                (Df['FECHA_OPERACION'] <= dia_anterior)
+            ].copy() 
+    else:
+        Df = Df[Df['FECHA_OPERACION'] == fecha_maxima].copy() 
     
     # Filtrar registros con VENTA_TOTAL > 0 (elimina ventas nulas o negativas).
     Df=Df[Df[ 'VENTA_TOTAL']>0]
@@ -91,15 +100,21 @@ def GetTodayData4Cluster(Frame):
     return Df
 
 def GetDescuento(Cluster,Elas):
-    if Cluster== 0 or Cluster== 2:
+    if Cluster== 0:
         # Los de mayor valor monetario
-        return 6
-    elif Cluster== 3 or Cluster== 5:
+        return -5
+    elif Cluster== 2:
+        return -2.5
+    elif Cluster== 3:
         # Los más sensibles al precio o en riesgo de abandono
-        return 2
-    elif Cluster== 1 or Cluster== 4:
+        return 10
+    elif  Cluster== 5:
+        return -7.5
+    elif Cluster== 1:
         # Viajeros frecuentes, no se obtendría un beneficio de aumentarles el precio
-        return 0.0
+        return 7.5
+    elif Cluster== 4:
+        return 2.5
     
 # En esta funcion se busca si el cliente ya está en la base de datos o no
 def GetCluster(Df,DB,Elas):

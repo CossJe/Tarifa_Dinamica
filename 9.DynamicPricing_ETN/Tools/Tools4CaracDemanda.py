@@ -135,6 +135,76 @@ def clasificar_meses(df, col_pax="PAX_SUBEN", anio_col="AÑO", mes_col="MES"):
     MesBueno= resumen[resumen["Clasif_mes_code"] == 1]["MES"]
 
     return MesBueno
+        
+def calcular_kpis(df:pd.DataFrame) -> dict:
+    kpis = pd.DataFrame()
+
+    df = df[ df['DIAS_ANTICIPACION'] >= 0 ]
+    df["DIAS_ANTICIPACION"] = df["DIAS_ANTICIPACION"].fillna(0)
+    df = df[ df['VENTA'] > 0 ]
+    df["NUM_ASIENTO"] = df["NUM_ASIENTO"].astype(int)
+
+        
+    df = df[ df['DIAS_ANTICIPACION'] >= 0 ]
+    df = df[ df['VENTA'] > 0 ]
+    df["NUM_ASIENTO"] = df["NUM_ASIENTO"].astype(int)
+
+
+    ##################################################################
+    # --- Top asientos más vendidos por hora y día
+    kpis = (
+        df.groupby(["CAPACIDAD_ASIENTOS_TRAMO", "NUM_ASIENTO"]).agg(
+            DIAS_VENTA = ( "FECHA_OPERACION", "nunique" ),
+            BOLETOS_VEND = ( "BOLETOS_VEND", "sum" ), 
+            VENTA = ( "VENTA", "sum" ),
+            PAX_SUBEN = ( "PAX_SUBEN", "sum" ),
+            VENTA_PROM = ( "VENTA", "mean" ),
+            VEL_VENTA_PROM = ( "DIAS_ANTICIPACION", "mean" ),
+            TARIFA_BASE_PROM = ( "TARIFA_BASE_TRAMO", "mean" )
+            ).sort_values( 
+                by=["NUM_ASIENTO", "BOLETOS_VEND"], 
+                ascending=[True, False] 
+                ).reset_index()
+    )
+    kpis["PAX_X_DIA_PROM"] = kpis["PAX_SUBEN"] / kpis["DIAS_VENTA"]
+
+    # Calcular total de boletos por cada capacidad_asientos_tramo
+    kpis = kpis.sort_values(by=[ "CAPACIDAD_ASIENTOS_TRAMO", "PAX_X_DIA_PROM", "NUM_ASIENTO" ], ascending=[False, False, True] )
+    # Paso 1: calcular el total de PAX_X_DIA_PROM por cada capacidad
+    kpis["TOTAL_PAX_X_CAP"] = kpis.groupby("CAPACIDAD_ASIENTOS_TRAMO")["PAX_X_DIA_PROM"].transform("sum")
+    # Paso 2: calcular la proporción por asiento
+    kpis["PROP_ASIENTO"] = kpis["PAX_X_DIA_PROM"] / kpis["TOTAL_PAX_X_CAP"]
+    # Paso 3: ordenar y calcular acumulado dentro de cada capacidad
+    kpis["PROP_ACUM"] = kpis.groupby("CAPACIDAD_ASIENTOS_TRAMO")["PROP_ASIENTO"].cumsum()
+    # OPCIONAL: convertir a porcentaje (0–100 en lugar de 0–1)
+    kpis["PROP_ASIENTO_PCT"] = kpis["PROP_ASIENTO"] * 100
+    kpis["PROP_ACUM_PCT"] = kpis["PROP_ACUM"] * 100
+
+    kpis = kpis.reset_index(drop=True)
+
+
+    return kpis
+
+def BuenAsiento(Frame):
+    kpi= calcular_kpis(Frame)
+
+    Capacidad= kpi['CAPACIDAD_ASIENTOS_TRAMO'].unique()
+
+    #"""
+    Data={}
+    for cap in Capacidad:
+        # Definimos el valor de la capacidad que quieres filtrar
+        capacidad_objetivo = cap
+        
+        # Aplicamos los dos filtros usando el operador lógico '&' (AND)
+        filtro = (kpi['CAPACIDAD_ASIENTOS_TRAMO'] == capacidad_objetivo) & (kpi['PROP_ACUM'] <= 0.60)
+        
+        # Aplicamos el filtro al DataFrame
+        resultado = kpi[filtro]['NUM_ASIENTO']
+        Data[int(cap)]= list(resultado)
+        
+    return Data
+
 
 def BuenasCaracteristicas(Frame):
     ruta_principal = os.getcwd()
@@ -146,8 +216,10 @@ def BuenasCaracteristicas(Frame):
     DiaBueno= list(map(int, list(DiaBueno)))
     MesBueno= clasificar_meses(Frame.copy())
     MesBueno= list(MesBueno)
+    AsientosBuenos= BuenAsiento(Frame)
     
-    data={"MesBueno": MesBueno, "HoraBuena":HoraBuena, "DiaBueno": DiaBueno
+    data={"MesBueno": MesBueno, "HoraBuena":HoraBuena, "DiaBueno": DiaBueno,
+          "AsientosBuenos":AsientosBuenos
         }
     with open(config_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)

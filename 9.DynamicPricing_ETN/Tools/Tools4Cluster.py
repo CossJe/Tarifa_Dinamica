@@ -19,13 +19,27 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import RobustScaler
 from sklearn.preprocessing import MinMaxScaler
 import joblib
+from datetime import timedelta
 
-def ModifyingData(Frame):
+
+def ModifyingData(Frame,Bandera):
     Df=Frame.copy()
     
     Df['FECHA_OPERACION'] = pd.to_datetime(Df['FECHA_OPERACION'])
     fecha_maxima = Df['FECHA_OPERACION'].max()
-    Df = Df[Df['FECHA_OPERACION'] < fecha_maxima].copy()
+    if Bandera==1:
+        dia_anterior = fecha_maxima - timedelta(days=1)
+        fecha_inicio = dia_anterior - timedelta(days=364)
+        Df = Df[
+                (Df['FECHA_OPERACION'] >= fecha_inicio) & 
+                (Df['FECHA_OPERACION'] <= dia_anterior)
+            ].copy() 
+        
+    elif Bandera==-1:
+        dia_anterior = fecha_maxima - timedelta(days=8)
+        Df = Df[Df['FECHA_OPERACION'] <= dia_anterior].copy()  
+    else:
+        Df = Df[Df['FECHA_OPERACION'] < fecha_maxima].copy()
     
     # Filtrar registros con VENTA_TOTAL > 0 (elimina ventas nulas o negativas).
     Df=Df[Df[ 'VENTA_TOTAL']>0]
@@ -93,9 +107,9 @@ def ModifyingData(Frame):
     return Df
 
 
-def CompleteData4Cluster(Frame,ruta_principal):
+def CompleteData4Cluster(Frame,ruta_principal,Bandera):
     # 1. Obtener los datos procesados desde una función externa
-    Df = ModifyingData(Frame)
+    Df = ModifyingData(Frame,Bandera)
     
     # 2. Crear un DataFrame vacío donde consolidaremos info a nivel correo
     df_correo = pd.DataFrame()
@@ -329,9 +343,9 @@ def GetCluster4AllData(df,optimal_k,ruta_principal):
     
     return df
 
-def ClusteringData(bandera,Frame):
+def ClusteringData(bandera,Frame,Bandera):
     ruta_principal = os.getcwd()
-    df=CompleteData4Cluster(Frame,ruta_principal)
+    df=CompleteData4Cluster(Frame,ruta_principal,Bandera)
     if bandera:
         df1=GetClustersMoreThanOne(df,6)
         n=max(df1['Cluster'])+1
