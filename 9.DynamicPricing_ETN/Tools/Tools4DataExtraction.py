@@ -45,3 +45,37 @@ def GetDB():
     config_path = os.path.join(ruta_principal, "Files", "ClusteringClientes_Clustering.parquet")
     DB = pd.read_parquet(config_path)
     return DB
+
+def Get_Data4NN():
+    # Obtener el directorio de trabajo actual (ruta principal del proyecto).
+    ruta_principal = os.getcwd()
+
+    # Construir la ruta al archivo de configuración "config/config.json".
+    config_path = os.path.join(ruta_principal, "config", "config.json")
+
+    # Llamar a la función externa que carga y realiza preprocesamiento inicial.
+    Frame = cargar_y_preparar_datos(config_path, ruta_principal)
+    columnas = [
+    'FECHA_CORRIDA',
+    'HORA_SALIDA_ORIGEN_CORRIDA',
+    'TIPO_PASAJERO',
+    'PAGO_METODO',
+    'PORCENT_PROMO',
+    'BOLETOS_VEND',
+    'AÑO',
+    'DIF_TARIF',
+    'CLASE_SERVICIO',
+    'ORIGEN',
+    'DESTINO',
+    'MES',
+    'KMS_TRAMO',
+    'OCUPACION_TRAMO',
+    'CAPACIDAD_ASIENTOS_TRAMO',
+    'HORAS_ANTICIPACION',
+    'DISPONIBILIDAD_TRAMO',
+    'NOMBRE_DIA_CORRIDA'
+    ]
+    
+    D4NN= Frame[columnas].copy()
+    
+    return  D4NN

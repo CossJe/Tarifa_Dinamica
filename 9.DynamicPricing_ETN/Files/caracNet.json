@@ -9,6 +9,7 @@
         "%_dif_TBT_Venta",
         "Mes_Corrida",
         "Anio_Corrida",
+        "TARIFA",
         "Buen_Dia",
         "Buena_Hora",
         "Buen_Mes",
@@ -22,7 +23,7 @@
         "PISO_UNO"
     ],
     "Bandera": false,
-    "%_dif_TBT_Venta": 0.1810295581817627,
+    "%_dif_TBT_Venta": 0.18095961213111877,
     "FrameN.columns": [
         "Origen-Destino",
         "DiaSemana_Corrida",
@@ -43,6 +44,7 @@
         "TIPO_CLIENTE_TAQUILLA",
         "PISO_DOS",
         "PISO_UNO",
+        "TARIFA",
         "VENTA"
     ]
 }

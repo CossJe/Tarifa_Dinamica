@@ -17,11 +17,11 @@ from Tools import Tools4TarifPer as T4TP
 from Tools import Tools4Net as T4N
 from Tools import Tools4Elasticity as T4E
 from Tools import Tools4CaracDemanda as TCD
-import client_segmentation as CS
-import kpis_calculator as KpiC
 from functools import reduce
 # Se extraen los datos del modelo de datos
-D4NN, D4C, D4C1, D4GC = T4DE.Get_Data()
+#D4NN, D4C, D4C1, D4GC = T4DE.Get_Data()
+
+D4NN = T4DE.Get_Data4NN()
 
 #T4E.MainElas()
 #TCD.BuenasCaracteristicas(D4GC)
@@ -43,7 +43,7 @@ for cap in Capacidad:
     
 """
 
-
+"""
 # 0 es para todos los dias antes de ayer
 # -1 es para todos los dias antes de 6 dias desde ayer
 # 1 es desde ayer hasta hace un año
@@ -72,3 +72,4 @@ for row in range(len(df_)):
 
 TodayDataPD = pd.concat(lista_resultados, ignore_index=True)
 
+"""

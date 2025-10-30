@@ -111,8 +111,8 @@ def Data4RedNeuronal(df_1,BC_json,Bandera):
     
     # Une las nuevas columnas dummy al DataFrame original
     df_total = pd.concat([df_total, df_dummies,df_dummies1], axis=1)
-    df_total['VENTA']=df['TARIFA_BASE_TRAMO'].copy()
-
+    df_total['TARIFA']=df['TARIFA_BASE_TRAMO'].copy()
+    df_total['VENTA']=df['VENTA'].copy()
     return df_total
 
 
@@ -152,7 +152,7 @@ def GetTrainingForm(df,Bandera,ruta_principal):
     # Excluimos las binarias/dummies que ya están bien escaladas (0 o 1)
     numeric_features = [
         'DiaSemana_Corrida', 'Hora_Corrida', 'NUM_ASIENTO', 
-        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Anio_Corrida'
+        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Anio_Corrida','TARIFA'
     ]
     
     # Columnas binarias (se dejan pasar sin transformación)
@@ -322,7 +322,7 @@ def DataForecasting(df,datos_carac,BC_json):
 
     df_total[df_dummies1.columns]= df_dummies1[df_dummies1.columns].copy()
     # Une las nuevas columnas dummy al DataFrame original
-
+    df_total['TARIFA']= df['TARIFA_BASE_TRAMO']
     df_total['VENTA']=df['VENTA'].copy()
     df_total=df_total.fillna(0)
     
@@ -361,7 +361,7 @@ def GetPredictingForm(Fore,cols,ruta_principal):
     # Excluimos las binarias/dummies que ya están bien escaladas (0 o 1)
     numeric_features = [
         'DiaSemana_Corrida', 'Hora_Corrida', 'NUM_ASIENTO', 
-        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Anio_Corrida'
+        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Anio_Corrida','TARIFA'
     ]
     
     # Columnas binarias (se dejan pasar sin transformación)

@@ -404,13 +404,13 @@ def MainElas():
     Coef, Elasticidad = GetElasticity(Frame)
     
     # Se utilizan los coeficientes y las condiciones iniciales para sugerir precios.
-    PrecioMaximo, PrecioSugerido = GetPrizes(Coef, CondIni, TBT)
+    PrecioM, PrecioS = GetPrizes(Coef, CondIni, TBT)
     
     # Convertir a tipos nativos de Python
     data = {
         "TBT": int(TBT),
-        "PrecioMaximo": float(PrecioMaximo),
-        "PrecioSugerido": float(PrecioSugerido),
+        "PrecioMaximo": float(PrecioS),
+        "PrecioSugerido": float(PrecioM),
         "Elasticidad": float(Elasticidad)
     }
     
