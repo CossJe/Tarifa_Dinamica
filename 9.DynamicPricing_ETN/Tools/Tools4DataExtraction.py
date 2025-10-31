@@ -73,7 +73,8 @@ def Get_Data4NN():
     'CAPACIDAD_ASIENTOS_TRAMO',
     'HORAS_ANTICIPACION',
     'DISPONIBILIDAD_TRAMO',
-    'NOMBRE_DIA_CORRIDA'
+    'NOMBRE_DIA_CORRIDA',
+    'VENTA'
     ]
     
     D4NN= Frame[columnas].copy()
