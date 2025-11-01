@@ -215,10 +215,10 @@ def TrainingNet(X_processed,Y_log,Bandera):
     history = model.fit(
         X_train, 
         Y_train_log,  # ¡Usamos la variable VENTA transformada con logaritmo!
-        epochs=2, 
+        epochs=50, 
         batch_size=32, 
         validation_split=0.2, # Usamos el 20% para validación interna
-        verbose=1
+        verbose=0
     )
     
     PredictingNet(model,X_test, Y_test_log,Bandera)
@@ -227,7 +227,7 @@ def TrainingNet(X_processed,Y_log,Bandera):
 def PredictingNet(model,X_test, Y_test_log,Bandera):
     # 'model' es tu red neuronal entrenada
     # 'X_test' son tus features de prueba (escalados y codificados)
-    Y_pred_log = model.predict(X_test)
+    Y_pred_log = model.predict(X_test, verbose=0)
     
     if Bandera:
         # Revertir la predicción logarítmica a la escala de precio real
@@ -388,7 +388,7 @@ def GetPredictingForm(Fore,cols,ruta_principal):
 def GetValues(model,Fore,X_final,Bandera):
     # 'model' es tu red neuronal entrenada
     # 'X_test' son tus features de prueba (escalados y codificados)
-    Y_pred_log = model.predict(X_final)
+    Y_pred_log = model.predict(X_final, verbose=0)
     
     Y_R_real = Fore['VENTA']
                 
