@@ -24,7 +24,7 @@ def Get_Data():
     # Seleccionar solo las columnas relevantes para el análisis.
     D4NN = Frame[['NOMBRE_PASAJERO','BOLETOS_VEND',"FECHA_CORRIDA", "HORA_SALIDA_CORRIDA", "CLASE_SERVICIO", 'IVA_TARIFA_BASE_TRAMO',
     "PAX_SUBEN", "TARIFA_BASE_TRAMO",'FECHA_OPERACION', 'HORA_OPERACION','VENTA','DISPONIBILIDAD_TRAMO',
-    'HORAS_ANTICIPACION','ORIGEN', 'DESTINO','TIPO_CLIENTE','NUM_ASIENTO','CAPACIDAD_ASIENTOS_TRAMO'
+    'HORAS_ANTICIPACION','ORIGEN', 'DESTINO','TIPO_CLIENTE','NUM_ASIENTO','CAPACIDAD_ASIENTOS_TRAMO','TIPO_PASAJERO'
                   ]].copy()
 
     D4C = Frame[['NOMBRE_PASAJERO','BOLETOS_VEND', 'CLASE_SERVICIO', 'DESC_DESCUENTO', 'DIAS_ANTICIPACION',
@@ -58,6 +58,7 @@ def Get_Data4NN():
     columnas = [
     'FECHA_CORRIDA',
     'HORA_SALIDA_ORIGEN_CORRIDA',
+    'HORA_SALIDA_CORRIDA',
     'TIPO_PASAJERO',
     'PAGO_METODO',
     'PORCENT_PROMO',
@@ -80,3 +81,22 @@ def Get_Data4NN():
     D4NN= Frame[columnas].copy()
     
     return  D4NN
+
+def Get_Data4NN_p():
+    # Obtener el directorio de trabajo actual (ruta principal del proyecto).
+    ruta_principal = os.getcwd()
+
+    # Construir la ruta al archivo de configuración "config/config.json".
+    config_path = os.path.join(ruta_principal, "config", "config.json")
+
+    # Llamar a la función externa que carga y realiza preprocesamiento inicial.
+    Frame = cargar_y_preparar_datos(config_path, ruta_principal)
+    
+    # Seleccionar solo las columnas relevantes para el análisis.
+
+    #D4NN= Frame[(Frame['ORIGEN']=='MEXN') & (Frame['DESTINO']== 'GDLJ')].copy()
+    D4NN=Frame.copy()
+    D4NN= D4NN[D4NN['BOLETOS_VEND']>0]
+    D4NN= D4NN[D4NN['VENTA']>0]
+    D4NN['FOP']= D4NN['OCUPACION_TRAMO']/D4NN['CAPACIDAD_ASIENTOS_TRAMO']
+    return D4NN

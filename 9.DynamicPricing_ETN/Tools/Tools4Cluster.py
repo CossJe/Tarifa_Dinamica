@@ -38,6 +38,10 @@ def ModifyingData(Frame,Bandera):
     elif Bandera==-1:
         dia_anterior = fecha_maxima - timedelta(days=8)
         Df = Df[Df['FECHA_OPERACION'] <= dia_anterior].copy()  
+    
+    elif Bandera==2:
+        dia_anterior = fecha_maxima - timedelta(days=20)
+        Df = Df[Df['FECHA_OPERACION'] <= dia_anterior].copy()  
     else:
         Df = Df[Df['FECHA_OPERACION'] < fecha_maxima].copy()
     

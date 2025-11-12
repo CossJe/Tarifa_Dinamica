@@ -29,6 +29,7 @@ def Prepare_Data(df,Bandera):
     df = df[df['VENTA'] > 0]
     df=df[df['BOLETOS_VEND']>0]
     df=df.drop('BOLETOS_VEND',axis=1)
+    df= df[df['TIPO_PASAJERO'] == 'AD']
     
     df['FECHA_OPERACION'] = pd.to_datetime(df['FECHA_OPERACION'])
     fecha_maxima = df['FECHA_OPERACION'].max()
@@ -43,6 +44,10 @@ def Prepare_Data(df,Bandera):
         
     elif Bandera==-1:
         dia_anterior = fecha_maxima - timedelta(days=8)
+        df = df[df['FECHA_OPERACION'] <= dia_anterior].copy()  
+        
+    elif Bandera==2:
+        dia_anterior = fecha_maxima - timedelta(days=20)
         df = df[df['FECHA_OPERACION'] <= dia_anterior].copy()  
     else:
         dia_anterior = fecha_maxima - timedelta(days=1)
@@ -111,7 +116,7 @@ def Data4RedNeuronal(df_1,BC_json,Bandera):
     
     # Une las nuevas columnas dummy al DataFrame original
     df_total = pd.concat([df_total, df_dummies,df_dummies1], axis=1)
-    df_total['TARIFA']=df['TARIFA_BASE_TRAMO'].copy()
+    #df_total['TARIFA']=df['TARIFA_BASE_TRAMO'].copy()
     df_total['VENTA']=df['VENTA'].copy()
     return df_total
 
@@ -152,7 +157,7 @@ def GetTrainingForm(df,Bandera,ruta_principal):
     # Excluimos las binarias/dummies que ya están bien escaladas (0 o 1)
     numeric_features = [
         'DiaSemana_Corrida', 'Hora_Corrida', 'NUM_ASIENTO', 
-        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Anio_Corrida','TARIFA'
+        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Anio_Corrida',
     ]
     
     # Columnas binarias (se dejan pasar sin transformación)
@@ -322,7 +327,7 @@ def DataForecasting(df,datos_carac,BC_json):
 
     df_total[df_dummies1.columns]= df_dummies1[df_dummies1.columns].copy()
     # Une las nuevas columnas dummy al DataFrame original
-    df_total['TARIFA']= df['TARIFA_BASE_TRAMO']
+    #df_total['TARIFA']= df['TARIFA_BASE_TRAMO']
     df_total['VENTA']=df['VENTA'].copy()
     df_total=df_total.fillna(0)
     
@@ -332,12 +337,21 @@ def PrepareData4Fore(df,Bandera):
     #df=Get_Data()
     # Se filtra el DataFrame para incluir solo ventas mayores que cero.
     df = df[df['VENTA'] > 0]
+    df = df[df['BOLETOS_VEND'] > 0]
     df['FECHA_OPERACION'] = pd.to_datetime(df['FECHA_OPERACION'])
     fecha_maxima = df['FECHA_OPERACION'].max()
     
-    if Bandera:
+    if Bandera==1:
         dia_anterior = fecha_maxima 
         fecha_inicio = dia_anterior - timedelta(days=7)
+        df = df[
+                (df['FECHA_OPERACION'] >= fecha_inicio) & 
+                (df['FECHA_OPERACION'] <= dia_anterior)
+            ].copy() 
+    
+    elif Bandera==2:
+        dia_anterior = fecha_maxima 
+        fecha_inicio = dia_anterior - timedelta(days=19)
         df = df[
                 (df['FECHA_OPERACION'] >= fecha_inicio) & 
                 (df['FECHA_OPERACION'] <= dia_anterior)
@@ -361,7 +375,7 @@ def GetPredictingForm(Fore,cols,ruta_principal):
     # Excluimos las binarias/dummies que ya están bien escaladas (0 o 1)
     numeric_features = [
         'DiaSemana_Corrida', 'Hora_Corrida', 'NUM_ASIENTO', 
-        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Anio_Corrida','TARIFA'
+        'HORAS_ANTICIPACION', '%_dif_TBT_Venta', 'Mes_Corrida','Anio_Corrida'
     ]
     
     # Columnas binarias (se dejan pasar sin transformación)

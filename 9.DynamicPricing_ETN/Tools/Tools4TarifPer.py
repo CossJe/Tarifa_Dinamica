@@ -19,13 +19,21 @@ def GetTodayData4Cluster(Frame,Bandera):
     
     Df['FECHA_OPERACION'] = pd.to_datetime(Df['FECHA_OPERACION'])
     fecha_maxima = Df['FECHA_OPERACION'].max()
-    if Bandera:
+    if Bandera==1:
         dia_anterior = fecha_maxima 
         fecha_inicio = dia_anterior - timedelta(days=7)
         Df = Df[
                 (Df['FECHA_OPERACION'] >= fecha_inicio) & 
                 (Df['FECHA_OPERACION'] <= dia_anterior)
             ].copy() 
+        
+    elif Bandera==2:
+            dia_anterior = fecha_maxima 
+            fecha_inicio = dia_anterior - timedelta(days=19)
+            Df = Df[
+                    (Df['FECHA_OPERACION'] >= fecha_inicio) & 
+                    (Df['FECHA_OPERACION'] <= dia_anterior)
+                ].copy() 
     else:
         Df = Df[Df['FECHA_OPERACION'] == fecha_maxima].copy() 
     
@@ -94,6 +102,7 @@ def GetTodayData4Cluster(Frame,Bandera):
     
     Df['VENTA_ANTICIPADA']= np.where(Df['VENTA_ANTICIPADA']=='SI',1,0)
     
+    Df[ 'VENTA_TOTAL']= Df['VENTA'].copy()
     Df['VENTA']= Df['TARIFA'].copy()
     Df= Df.drop('TARIFA',axis=1)
     # Devolver el DataFrame final procesado.
@@ -101,20 +110,17 @@ def GetTodayData4Cluster(Frame,Bandera):
 
 def GetDescuento(Cluster,Elas):
     if Cluster== 0:
-        # Los de mayor valor monetario
-        return -5
+        return 2.5
     elif Cluster== 2:
-        return -2.5
+        return 5
     elif Cluster== 3:
-        # Los más sensibles al precio o en riesgo de abandono
         return 10
     elif  Cluster== 5:
-        return -7.5
+        return 0
     elif Cluster== 1:
-        # Viajeros frecuentes, no se obtendría un beneficio de aumentarles el precio
-        return 7.5
+        return 8.5
     elif Cluster== 4:
-        return 2.5
+        return 7
     
 # En esta funcion se busca si el cliente ya está en la base de datos o no
 def GetCluster(Df,DB,Elas):
