@@ -60,7 +60,7 @@ def Get_Daily_Resume( df, cols2an, Plotting_Resume=False ):
         ax2.tick_params(axis='y', labelcolor='darkgreen')
 
         # --- Título y leyenda combinada ---
-        fig.suptitle('Elasticidad Precio-Demanda Diaria (controlada por hora, anticipación, asiento, mes y día)', fontsize=12)
+        fig.suptitle('Relación Tarifa vs. Demanda', fontsize=12)
         lines, labels = ax1.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
         ax1.legend(lines + lines2, labels + labels2, loc='upper left')
@@ -719,7 +719,7 @@ def Calculate_Min_Max_Optimal_Tarify( df, days_before, grados=(1, 2, 3), resampl
         plt.axvline(x=resultado_opt['P_optimo'], label=f"Tarifa óptima = {np.round( resultado_opt['P_optimo'], 0)}", color='darkgreen', linestyle='--', alpha=0.95)
         plt.axvline(x=df_agg[ 'TARIFA_BASE_TRAMO' ].mean(), label=f"Tarifa Base = {np.round( df_agg[ 'TARIF_PROM' ].mean(), 0)}", color='k', linestyle='--', alpha=0.65)
         plt.legend()
-        plt.title('Elasticidad Precio-Demanda Diaria (controlada por hora, anticipación, asiento, mes y día)')
+        plt.title('Análisis de Tarifa Óptima')
         plt.xlabel('TARIF_PROM')
         plt.ylabel('VENTA')
         plt.grid(True)
