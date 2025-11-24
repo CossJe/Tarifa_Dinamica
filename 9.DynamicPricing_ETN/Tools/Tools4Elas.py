@@ -746,4 +746,3 @@ def MainElasA():
     return resultado_opt,E_global
 
 
-resultado_opt,E_global= MainElasA()
