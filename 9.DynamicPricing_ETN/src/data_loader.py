@@ -119,7 +119,8 @@ def combine_dfs( mc, fik, doters ):
     # Convertir hora a formato decimal (HH.MM)
     df_final['HORA_OPERACION'] = pd.to_datetime( df_final['HORA_OPERACION'], format='%H:%M:%S' )
     df_final['HORA_SALIDA_CORRIDA'] = pd.to_datetime( df_final['HORA_SALIDA_CORRIDA'], format='%H:%M:%S' )
-
+    df_final['HORA_SALIDA_CORRIDA_'] = df_final['HORA_SALIDA_ORIGEN_CORRIDA'].str[:8]
+    df_final['HORA_SALIDA_CORRIDA_'] = pd.to_datetime(df_final['HORA_SALIDA_CORRIDA_'], format='%H:%M:%S' ).dt.time
     # Crear columna con formato NumeroDia_NombreDia
     # 1. Extraer número de día (lunes=0, domingo=6)
     dias_es = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']

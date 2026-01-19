@@ -25,8 +25,8 @@
         "contraseña": "4br1L.20015"
     },
     "Ruta": {
-        "ORIG": ["MEXN", "TEPO"],
-        "DEST": ["GDLJ"]
+        "ORIG": ["MEXN", "ACAP","ZACA"],
+        "DEST": ["GDLJ","MTYC","VALL"]
     },
     "archivos_sql": {
         "MC_SQL_File": "DP_Pred_MC_DataExtract.sql",

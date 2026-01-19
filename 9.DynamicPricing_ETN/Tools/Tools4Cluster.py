@@ -347,6 +347,7 @@ def GetCluster4AllData(df,optimal_k,ruta_principal):
     
     return df
 
+# programa principal
 def ClusteringData(bandera,Frame,Bandera):
     ruta_principal = os.getcwd()
     df=CompleteData4Cluster(Frame,ruta_principal,Bandera)

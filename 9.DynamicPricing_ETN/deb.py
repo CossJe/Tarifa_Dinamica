@@ -24,11 +24,6 @@ def Get_Data():
     # Llamar a la función externa que carga y realiza preprocesamiento inicial.
     Frame = cargar_y_preparar_datos(config_path, ruta_principal)
     
-    # Seleccionar solo las columnas relevantes para el análisis.
-    D4NN = Frame[["PAX_SUBEN", 'FECHA_OPERACION','VENTA','ORIGEN', 'DESTINO','BOLETOS_VEND','TARIFA_BASE_TRAMO',
-                 'HORA_SALIDA_CORRIDA']].copy()
-    D4NN= D4NN[(D4NN['ORIGEN']=='MEXN') & (D4NN['DESTINO']== 'GDLJ')].copy()
-    D4NN=D4NN.iloc[:-1]
-    return D4NN
+    return Frame
 
-D4NN= Get_Data()
+Df= Get_Data()
